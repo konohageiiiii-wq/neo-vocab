@@ -262,15 +262,15 @@ export default async function DashboardPage() {
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
   const now = new Date().toISOString()
 
-  const [logsRes, reviewsRes, decksRes, lastLogRes, weakWordsRes, apiUsageRes] = await Promise.all([
+  const [logsRes, cardsWithReviewsRes, decksRes, lastLogRes, weakWordsRes, apiUsageRes] = await Promise.all([
     supabase
       .from('study_logs')
       .select('is_correct, created_at')
       .eq('user_id', user!.id)
       .gte('created_at', thirtyDaysAgo.toISOString()),
     supabase
-      .from('card_reviews')
-      .select('card_id, repetitions, next_review_at, cards(deck_id)')
+      .from('cards')
+      .select('id, deck_id, card_reviews(next_review_at, repetitions)')
       .eq('user_id', user!.id),
     supabase
       .from('decks')
@@ -301,7 +301,7 @@ export default async function DashboardPage() {
   ])
 
   const logs = logsRes.data ?? []
-  const reviews = reviewsRes.data ?? []
+  const cardsWithReviews = cardsWithReviewsRes.data ?? []
   const decks = decksRes.data ?? []
   const weakWords = weakWordsRes.data ?? []
   const apiUsageCount = apiUsageRes.count ?? 0
@@ -310,38 +310,39 @@ export default async function DashboardPage() {
   // ── ユーザー表示名
   const userDisplayName = user?.email?.split('@')[0] ?? 'ゲスト'
 
-  // ── ストリーク
+  // ── ストリーク（今日未復習でも当日中はストリーク継続）
   const studyDates = new Set(logs.map((l) => l.created_at.slice(0, 10)))
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const streakStart = studyDates.has(todayStr) ? 0 : 1
   let streak = 0
-  for (let i = 0; ; i++) {
+  for (let i = streakStart; ; i++) {
     const d = new Date()
     d.setDate(d.getDate() - i)
     if (studyDates.has(d.toISOString().slice(0, 10))) { streak++ } else { break }
   }
 
-  // ── デッキ別：復習数 & 習得数
+  // ── デッキ別：復習数 & 習得数（未レビューカードも復習待ちに含む）
   const dueByDeckId: Record<string, number> = {}
   const learnedByDeckId: Record<string, number> = {}
   let dueCount = 0
-  reviews.forEach(({ next_review_at, repetitions, cards: cardData }) => {
-    const deckId = (cardData as { deck_id: string } | null)?.deck_id
-    if (!deckId) return
-    if (next_review_at <= now) {
+  cardsWithReviews.forEach((card) => {
+    const review = (card.card_reviews as Array<{ next_review_at: string; repetitions: number }> | null)?.[0]
+    // 未レビュー OR next_review_at が過去 → 復習待ち
+    if (!review || review.next_review_at <= now) {
       dueCount++
-      dueByDeckId[deckId] = (dueByDeckId[deckId] ?? 0) + 1
+      dueByDeckId[card.deck_id] = (dueByDeckId[card.deck_id] ?? 0) + 1
     }
-    if (repetitions >= 1) {
-      learnedByDeckId[deckId] = (learnedByDeckId[deckId] ?? 0) + 1
+    if (review && review.repetitions >= 1) {
+      learnedByDeckId[card.deck_id] = (learnedByDeckId[card.deck_id] ?? 0) + 1
     }
   })
 
   // ── 次の復習時刻
-  const futureReviews = reviews.filter((r) => r.next_review_at > now)
-  const nextReviewIso = futureReviews.length > 0
-    ? futureReviews.reduce(
-        (min, r) => r.next_review_at < min ? r.next_review_at : min,
-        futureReviews[0].next_review_at,
-      )
+  const futureReviewDates = cardsWithReviews
+    .map((card) => (card.card_reviews as Array<{ next_review_at: string }> | null)?.[0]?.next_review_at)
+    .filter((d): d is string => !!d && d > now)
+  const nextReviewIso = futureReviewDates.length > 0
+    ? futureReviewDates.reduce((min, d) => d < min ? d : min, futureReviewDates[0])
     : null
 
   // ── 統計
@@ -354,7 +355,7 @@ export default async function DashboardPage() {
     ? Math.round(((weeklyReviewCount - lastWeekCount) / lastWeekCount) * 100)
     : null
 
-  const learnedCount = reviews.filter((r) => r.repetitions >= 1).length
+  const learnedCount = Object.values(learnedByDeckId).reduce((sum, n) => sum + n, 0)
   const totalCards = decks.reduce(
     (sum, d) => sum + ((d.cards as unknown as { count: number }[])[0]?.count ?? 0),
     0,
