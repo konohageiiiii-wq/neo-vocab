@@ -144,6 +144,13 @@ export default function CardList({ cards, isOwner, deckId }: { cards: Card[]; is
                   ))}
                 </div>
               )}
+
+              {selectedCard.memo && (
+                <div className="border-t border-gray-100 pt-4">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">メモ</p>
+                  <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{selectedCard.memo}</p>
+                </div>
+              )}
             </div>
 
             {/* モーダルフッター */}

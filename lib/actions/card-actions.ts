@@ -37,6 +37,8 @@ export async function createCard(
     examples = []
   }
 
+  const memo = formData.get('memo') as string
+
   const { error } = await supabase.from('cards').insert({
     deck_id,
     user_id: user.id,
@@ -46,6 +48,7 @@ export async function createCard(
     part_of_speech: part_of_speech || null,
     level: level || null,
     examples,
+    memo: memo || null,
   })
 
   if (error) return { error: 'カードの作成に失敗しました' }
@@ -67,6 +70,7 @@ export async function updateCard(
   const word    = formData.get('word') as string
   const reading = formData.get('reading') as string
   const meaning = formData.get('meaning') as string
+  const memo    = formData.get('memo') as string
 
   const { data: card } = await supabase
     .from('cards')
@@ -87,6 +91,7 @@ export async function updateCard(
       reading: reading || null,
       meaning,
       examples,
+      memo: memo || null,
     })
     .eq('id', card_id)
     .eq('user_id', user.id)

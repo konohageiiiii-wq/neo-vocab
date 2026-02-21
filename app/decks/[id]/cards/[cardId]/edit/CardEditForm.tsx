@@ -122,6 +122,27 @@ export default function CardEditForm({
           />
         </div>
 
+        {/* メモ */}
+        <div>
+          <label htmlFor="memo" className="block text-sm font-medium mb-1" style={{ color: 'var(--lc-text-secondary)' }}>
+            メモ
+          </label>
+          <textarea
+            id="memo"
+            name="memo"
+            rows={2}
+            defaultValue={card.memo ?? ''}
+            className="w-full px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2"
+            style={{
+              background: 'var(--lc-surface)',
+              border: '1px solid var(--lc-border)',
+              borderRadius: 'var(--radius-md)',
+              color: 'var(--lc-text-primary)',
+            }}
+            placeholder="語源・使い方のコツなど自由に"
+          />
+        </div>
+
         {/* 例文 */}
         <div
           className="p-4 space-y-3"

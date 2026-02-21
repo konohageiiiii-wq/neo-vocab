@@ -84,6 +84,7 @@ export type Database = {
           id: string
           level: string | null
           meaning: string
+          memo: string | null
           part_of_speech: string | null
           reading: string | null
           user_id: string
@@ -96,6 +97,7 @@ export type Database = {
           id?: string
           level?: string | null
           meaning: string
+          memo?: string | null
           part_of_speech?: string | null
           reading?: string | null
           user_id: string
@@ -108,6 +110,7 @@ export type Database = {
           id?: string
           level?: string | null
           meaning?: string
+          memo?: string | null
           part_of_speech?: string | null
           reading?: string | null
           user_id?: string

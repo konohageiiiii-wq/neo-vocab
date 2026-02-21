@@ -13,11 +13,8 @@ const VALID_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 const VALID_LANGUAGES = ['en', 'es']
 
 // コスト根拠: claude-sonnet-4-5 ($3/$15 per M tokens)
-// 1回あたり最悪 0.64円 → 月300円上限 = 469回
-// 安全マージンを取り月450回・日15回に設定
-const LIMIT_PER_MONTH  = 450
-const LIMIT_PER_DAY    = 15
-const LIMIT_PER_MINUTE = 5
+// 1回あたり最悪 0.64円 → 月300円上限 = 469回 → 安全マージンで450回
+const LIMIT_PER_MONTH = 450
 
 export async function POST(request: Request) {
   // 認証チェック
@@ -30,45 +27,17 @@ export async function POST(request: Request) {
   // ── レートリミット ──────────────────────────────────
   const now = new Date()
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
-  const oneDayAgo     = new Date(now.getTime() -      24 * 60 * 60 * 1000).toISOString()
-  const oneMinuteAgo  = new Date(now.getTime() -           60 * 1000).toISOString()
 
-  const [monthRes, dayRes, minRes] = await Promise.all([
-    supabase
-      .from('api_usage')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .eq('endpoint', 'generate-examples')
-      .gte('created_at', thirtyDaysAgo),
-    supabase
-      .from('api_usage')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .eq('endpoint', 'generate-examples')
-      .gte('created_at', oneDayAgo),
-    supabase
-      .from('api_usage')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .eq('endpoint', 'generate-examples')
-      .gte('created_at', oneMinuteAgo),
-  ])
+  const monthRes = await supabase
+    .from('api_usage')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('endpoint', 'generate-examples')
+    .gte('created_at', thirtyDaysAgo)
 
   if ((monthRes.count ?? 0) >= LIMIT_PER_MONTH) {
     return NextResponse.json(
       { error: '月間の例文生成上限（450回）に達しました。来月また試してください。' },
-      { status: 429 }
-    )
-  }
-  if ((dayRes.count ?? 0) >= LIMIT_PER_DAY) {
-    return NextResponse.json(
-      { error: '1日の例文生成上限（15回）に達しました。明日また試してください。' },
-      { status: 429 }
-    )
-  }
-  if ((minRes.count ?? 0) >= LIMIT_PER_MINUTE) {
-    return NextResponse.json(
-      { error: 'リクエストが多すぎます。少し待ってから再試行してください。' },
       { status: 429 }
     )
   }
