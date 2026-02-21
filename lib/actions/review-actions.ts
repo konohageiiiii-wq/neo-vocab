@@ -1,6 +1,5 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { calcNextReview } from '@/lib/sm2'
 
@@ -78,5 +77,4 @@ export async function submitReview(
     mode,
   })
 
-  revalidatePath(`/decks/${deckId}/study`)
 }

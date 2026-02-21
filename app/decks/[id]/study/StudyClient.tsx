@@ -12,16 +12,21 @@ type Rating = 'easy' | 'normal' | 'hard'
 // 1. 完全一致を優先、2. 同言語の別アクセントにフォールバック
 function speak(text: string, accent: string) {
   if (typeof window === 'undefined') return
-  const utterance = new SpeechSynthesisUtterance(text)
-  const langPrefix = accent.split('-')[0]
-  const voices = window.speechSynthesis.getVoices()
-  const voice = voices.find((v) => v.lang === accent)
-    ?? voices.find((v) => v.lang.startsWith(langPrefix))
-    ?? null
-  if (voice) utterance.voice = voice
-  utterance.lang = accent
-  window.speechSynthesis.cancel()
-  window.speechSynthesis.speak(utterance)
+  if (!window.speechSynthesis) return
+  try {
+    const utterance = new SpeechSynthesisUtterance(text)
+    const langPrefix = accent.split('-')[0]
+    const voices = window.speechSynthesis.getVoices()
+    const voice = voices.find((v) => v.lang === accent)
+      ?? voices.find((v) => v.lang.startsWith(langPrefix))
+      ?? null
+    if (voice) utterance.voice = voice
+    utterance.lang = accent
+    window.speechSynthesis.cancel()
+    window.speechSynthesis.speak(utterance)
+  } catch {
+    // 音声読み上げ非対応環境では無視
+  }
 }
 
 export default function StudyClient({
