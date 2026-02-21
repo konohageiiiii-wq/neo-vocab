@@ -14,9 +14,7 @@ const ACCENT_OPTIONS: Record<string, { value: string; label: string }[]> = {
   ],
   es: [
     { value: 'es-ES', label: '🇪🇸 スペイン (es-ES)' },
-    { value: 'es-MX', label: '🇲🇽 メキシコ (es-MX)' },
-    { value: 'es-CO', label: '🇨🇴 コロンビア (es-CO)' },
-    { value: 'es-AR', label: '🇦🇷 アルゼンチン (es-AR)' },
+    { value: 'es-US', label: '🌎 ラテンアメリカ (es-US)' },
   ],
 }
 
@@ -112,7 +110,7 @@ export default function NewDeckPage() {
             ))}
           </div>
           <p className="text-xs text-gray-400 mt-1.5">
-            ブラウザが未対応の場合は同じ言語の別アクセントを自動選択します
+            カード保存時に選択したアクセントで音声が自動生成されます
           </p>
         </div>
 

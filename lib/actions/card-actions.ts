@@ -16,6 +16,8 @@ const VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
   'en-GB': { languageCode: 'en-GB', name: 'en-GB-Neural2-C' },
   'en-AU': { languageCode: 'en-AU', name: 'en-AU-Neural2-C' },
   'es-ES': { languageCode: 'es-ES', name: 'es-ES-Neural2-A' },
+  'es-US': { languageCode: 'es-US', name: 'es-US-Neural2-A' },
+  // 旧データとの後方互換
   'es-MX': { languageCode: 'es-US', name: 'es-US-Neural2-A' },
   'es-CO': { languageCode: 'es-US', name: 'es-US-Neural2-A' },
   'es-AR': { languageCode: 'es-US', name: 'es-US-Neural2-A' },
