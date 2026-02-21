@@ -16,17 +16,17 @@ const VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
   'en-GB': { languageCode: 'en-GB', name: 'en-GB-Neural2-C' },
   'en-AU': { languageCode: 'en-AU', name: 'en-AU-Neural2-C' },
   'es-ES': { languageCode: 'es-ES', name: 'es-ES-Neural2-A' },
-  'es-US': { languageCode: 'es-US', name: 'es-US-Neural2-A' },
+  'es-US': { languageCode: 'es-US', name: 'es-US-Wavenet-B' },
   // 旧データとの後方互換
-  'es-MX': { languageCode: 'es-US', name: 'es-US-Neural2-A' },
-  'es-CO': { languageCode: 'es-US', name: 'es-US-Neural2-A' },
-  'es-AR': { languageCode: 'es-US', name: 'es-US-Neural2-A' },
+  'es-MX': { languageCode: 'es-US', name: 'es-US-Wavenet-B' },
+  'es-CO': { languageCode: 'es-US', name: 'es-US-Wavenet-B' },
+  'es-AR': { languageCode: 'es-US', name: 'es-US-Wavenet-B' },
 }
 
 // language（'en'|'es'）単体でのフォールバックボイス
 const LANGUAGE_FALLBACK: Record<string, { languageCode: string; name: string }> = {
   en: { languageCode: 'en-US', name: 'en-US-Neural2-C' },
-  es: { languageCode: 'es-US', name: 'es-US-Neural2-A' },
+  es: { languageCode: 'es-US', name: 'es-US-Wavenet-B' },
 }
 
 async function generateAudio(
