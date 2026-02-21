@@ -14,12 +14,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'LinguaCard — AI×間隔反復で語学学習',
-    template: '%s | LinguaCard',
+    default: 'NeoVocab — AI×間隔反復で語学学習',
+    template: '%s | NeoVocab',
   },
   description: '単語を登録するだけでAIが例文を自動生成。SM-2間隔反復アルゴリズムで英語・スペイン語を効率よく学習できるフラッシュカードアプリ。',
   openGraph: {
-    siteName: 'LinguaCard',
+    siteName: 'NeoVocab',
     type: 'website',
     locale: 'ja_JP',
   },

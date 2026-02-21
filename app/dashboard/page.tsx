@@ -390,7 +390,7 @@ export default async function DashboardPage() {
       <header style={{ background: 'var(--lc-surface)', borderBottom: '1px solid var(--lc-border)' }}>
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <span className="text-sm font-bold tracking-tight" style={{ color: 'var(--lc-text-primary)' }}>
-            LinguaCard
+            NeoVocab
           </span>
           <div className="flex items-center gap-1">
             <Link

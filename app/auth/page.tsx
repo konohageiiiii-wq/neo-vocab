@@ -41,7 +41,7 @@ export default function AuthPage() {
               </span>
             </div>
             <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-3">
-              LinguaCard
+              NeoVocab
             </h1>
             <p className="text-lg lg:text-xl" style={{ color: '#94A3B8' }}>
               楽しく、スマートに語学学習

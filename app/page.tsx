@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Brain, Repeat2, Mic2, ChevronRight } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'LinguaCard — AI×間隔反復で語学学習',
+  title: 'NeoVocab — AI×間隔反復で語学学習',
   description: '単語を登録するだけでAIが例文を自動生成。SM-2間隔反復アルゴリズムで英語・スペイン語を効率よく学習。',
 }
 
@@ -24,7 +24,7 @@ export default async function LandingPage() {
       {/* Nav */}
       <nav style={{ background: '#0F172A' }}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span className="text-white font-bold text-lg tracking-tight">LinguaCard</span>
+          <span className="text-white font-bold text-lg tracking-tight">NeoVocab</span>
           <Link
             href="/auth"
             className="text-sm font-medium px-4 py-2 transition-colors"
@@ -184,7 +184,7 @@ export default async function LandingPage() {
         style={{ borderColor: 'var(--lc-border)' }}
       >
         <div className="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between">
-          <span className="text-sm font-bold" style={{ color: 'var(--lc-text-primary)' }}>LinguaCard</span>
+          <span className="text-sm font-bold" style={{ color: 'var(--lc-text-primary)' }}>NeoVocab</span>
           <Link href="/auth" className="text-sm transition-colors" style={{ color: 'var(--lc-text-muted)' }}>
             ログイン / 新規登録
           </Link>
