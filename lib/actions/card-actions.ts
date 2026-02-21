@@ -54,6 +54,49 @@ export async function createCard(
   redirect(`/decks/${deck_id}`)
 }
 
+export async function updateCard(
+  _prevState: { error: string | null },
+  formData: FormData
+): Promise<{ error: string | null }> {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: '認証が必要です' }
+
+  const card_id = formData.get('card_id') as string
+  const word    = formData.get('word') as string
+  const reading = formData.get('reading') as string
+  const meaning = formData.get('meaning') as string
+
+  const { data: card } = await supabase
+    .from('cards')
+    .select('user_id, deck_id')
+    .eq('id', card_id)
+    .single()
+
+  if (!card || card.user_id !== user.id) return { error: '権限がありません' }
+
+  const examplesRaw = formData.get('examples') as string
+  let examples: string[] = []
+  try { examples = JSON.parse(examplesRaw) } catch { examples = [] }
+
+  const { error } = await supabase
+    .from('cards')
+    .update({
+      word,
+      reading: reading || null,
+      meaning,
+      examples,
+    })
+    .eq('id', card_id)
+    .eq('user_id', user.id)
+
+  if (error) return { error: 'カードの更新に失敗しました' }
+
+  revalidatePath(`/decks/${card.deck_id}`)
+  redirect(`/decks/${card.deck_id}`)
+}
+
 export async function deleteCard(cardId: string): Promise<{ error: string | null }> {
   const supabase = await createClient()
 

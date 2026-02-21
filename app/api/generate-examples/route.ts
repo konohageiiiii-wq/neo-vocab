@@ -87,17 +87,17 @@ export async function POST(request: Request) {
   const posHint   = sanitizedPos ? ` (${sanitizedPos})` : ''
   const levelHint = level ? ` at CEFR level ${level}` : ''
 
-  const prompt = `Generate exactly 3 natural example sentences in ${langName} using the word "${word}"${posHint}${levelHint}.
+  const prompt = `Generate exactly 1 natural example sentence in ${langName} using the word "${word}"${posHint}${levelHint}.
 
 Requirements:
-- Each sentence must use the word "${word}" naturally
-- Sentences should be appropriate for CEFR level ${level ?? 'B1'}
-- Return ONLY a JSON array of 3 strings, no explanation
-- Example format: ["Sentence 1.", "Sentence 2.", "Sentence 3."]`
+- The sentence must use the word "${word}" naturally
+- The sentence should be appropriate for CEFR level ${level ?? 'B1'}
+- Return ONLY a JSON array of 1 string, no explanation
+- Example format: ["Sentence 1."]`
 
   const message = await client.messages.create({
     model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 512,
+    max_tokens: 256,
     messages: [{ role: 'user', content: prompt }],
   })
 
@@ -107,7 +107,7 @@ Requirements:
   try {
     const match = text.match(/\[[\s\S]*\]/)
     examples = JSON.parse(match ? match[0] : text)
-    if (!Array.isArray(examples) || examples.length !== 3) throw new Error()
+    if (!Array.isArray(examples) || examples.length !== 1) throw new Error()
   } catch {
     return NextResponse.json({ error: '例文の生成に失敗しました。再度お試しください。' }, { status: 500 })
   }

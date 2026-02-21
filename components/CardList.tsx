@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { Tables } from '@/types/database.types'
 import { deleteCard } from '@/lib/actions/card-actions'
 
@@ -15,7 +16,7 @@ const LEVEL_COLOR: Record<string, string> = {
   C2: 'bg-red-100 text-red-700',
 }
 
-export default function CardList({ cards, isOwner }: { cards: Card[]; isOwner: boolean }) {
+export default function CardList({ cards, isOwner, deckId }: { cards: Card[]; isOwner: boolean; deckId: string }) {
   const [selectedCard, setSelectedCard] = useState<Card | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -67,13 +68,23 @@ export default function CardList({ cards, isOwner }: { cards: Card[]; isOwner: b
                 </span>
               )}
               {isOwner && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleDelete(card) }}
-                  disabled={deletingId === card.id || isPending}
-                  className="text-xs text-red-400 hover:text-red-600 disabled:opacity-40 transition-colors px-2 py-1 rounded"
-                >
-                  {deletingId === card.id ? '削除中...' : '削除'}
-                </button>
+                <>
+                  <Link
+                    href={`/decks/${deckId}/cards/${card.id}/edit`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-xs px-2 py-1 rounded transition-colors"
+                    style={{ color: 'var(--lc-accent)' }}
+                  >
+                    編集
+                  </Link>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDelete(card) }}
+                    disabled={deletingId === card.id || isPending}
+                    className="text-xs text-red-400 hover:text-red-600 disabled:opacity-40 transition-colors px-2 py-1 rounded"
+                  >
+                    {deletingId === card.id ? '削除中...' : '削除'}
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -135,9 +146,16 @@ export default function CardList({ cards, isOwner }: { cards: Card[]; isOwner: b
               )}
             </div>
 
-            {/* モーダルフッター（削除ボタン） */}
+            {/* モーダルフッター */}
             {isOwner && (
-              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                <Link
+                  href={`/decks/${deckId}/cards/${selectedCard.id}/edit`}
+                  className="text-sm font-medium transition-colors"
+                  style={{ color: 'var(--lc-accent)' }}
+                >
+                  編集する
+                </Link>
                 <button
                   onClick={() => handleDelete(selectedCard)}
                   disabled={deletingId === selectedCard.id || isPending}

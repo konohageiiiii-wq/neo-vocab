@@ -87,7 +87,7 @@ export default async function DeckDetailPage({
 
       {/* カード一覧 */}
       <div className="bg-white rounded-2xl border border-gray-200 px-6">
-        <CardList cards={cards} isOwner={isOwner} />
+        <CardList cards={cards} isOwner={isOwner} deckId={id} />
       </div>
     </div>
   )
