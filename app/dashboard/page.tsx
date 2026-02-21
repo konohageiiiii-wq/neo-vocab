@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/app/auth/actions'
@@ -254,6 +255,9 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+  // ニックネーム未設定ならオンボーディングへ
+  if (!user?.user_metadata?.nickname) redirect('/onboarding')
+
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
   const fourteenDaysAgo = new Date()
@@ -315,11 +319,8 @@ export default async function DashboardPage() {
   const API_LIMIT = 450
   const IMAGE_LIMIT = 100
 
-  // ── ユーザー表示名（Google OAuth はフルネーム優先、メール登録は「ユーザー」）
-  const userDisplayName =
-    (user?.user_metadata?.full_name as string | undefined) ??
-    (user?.user_metadata?.name as string | undefined) ??
-    'ユーザー'
+  // ── ユーザー表示名（ニックネーム確定済み）
+  const userDisplayName = user?.user_metadata?.nickname as string
 
   // ── ストリーク（今日未復習でも当日中はストリーク継続）
   const studyDates = new Set(logs.map((l) => l.created_at.slice(0, 10)))

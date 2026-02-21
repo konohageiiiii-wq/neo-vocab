@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PROTECTED_PATHS = ['/dashboard', '/decks', '/study']
+const PROTECTED_PATHS = ['/dashboard', '/decks', '/study', '/onboarding']
 const AUTH_PATH = '/auth'
 
 // 保護ルートの厳密なマッチング（/decks と /decksx を区別する）
