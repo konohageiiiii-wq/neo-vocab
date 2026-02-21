@@ -91,18 +91,29 @@ Return ONLY the image prompt in English. No explanation. Max 80 words.`
   }
   // ─────────────────────────────────────────────────────
 
-  const response = await fetch('https://fal.run/fal-ai/flux/schnell', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Key ${process.env.FAL_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      prompt: imagePrompt,
-      image_size: 'square_hd',
-      num_images: 1,
-    }),
-  })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 30_000)
+
+  let response: Response
+  try {
+    response = await fetch('https://fal.run/fal-ai/flux/schnell', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Key ${process.env.FAL_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: imagePrompt,
+        image_size: 'square_hd',
+        num_images: 1,
+      }),
+      signal: controller.signal,
+    })
+  } catch {
+    return NextResponse.json({ error: '画像の生成に失敗しました。再度お試しください。' }, { status: 500 })
+  } finally {
+    clearTimeout(timeout)
+  }
 
   if (!response.ok) {
     const err = await response.text()
