@@ -176,6 +176,14 @@ export default function StudyClient({
                     </p>
                   )}
                 </div>
+                {card.image_url && (
+                  <img
+                    src={card.image_url}
+                    alt={`${card.word} のイメージ`}
+                    className="w-full max-h-52 object-cover mx-auto"
+                    style={{ borderRadius: 'var(--radius-md)' }}
+                  />
+                )}
                 <div
                   className="pt-4 space-y-1"
                   style={{ borderTop: '1px solid var(--lc-border)' }}

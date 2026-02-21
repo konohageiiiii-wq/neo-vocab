@@ -315,8 +315,11 @@ export default async function DashboardPage() {
   const API_LIMIT = 450
   const IMAGE_LIMIT = 100
 
-  // ── ユーザー表示名
-  const userDisplayName = user?.email?.split('@')[0] ?? 'ゲスト'
+  // ── ユーザー表示名（Google OAuth はフルネーム優先、メール登録は「ユーザー」）
+  const userDisplayName =
+    (user?.user_metadata?.full_name as string | undefined) ??
+    (user?.user_metadata?.name as string | undefined) ??
+    'ユーザー'
 
   // ── ストリーク（今日未復習でも当日中はストリーク継続）
   const studyDates = new Set(logs.map((l) => l.created_at.slice(0, 10)))
