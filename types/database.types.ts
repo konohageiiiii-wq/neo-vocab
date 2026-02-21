@@ -82,6 +82,7 @@ export type Database = {
           deck_id: string
           examples: string[] | null
           id: string
+          image_url: string | null
           level: string | null
           meaning: string
           memo: string | null
@@ -95,6 +96,7 @@ export type Database = {
           deck_id: string
           examples?: string[] | null
           id?: string
+          image_url?: string | null
           level?: string | null
           meaning: string
           memo?: string | null
@@ -108,6 +110,7 @@ export type Database = {
           deck_id?: string
           examples?: string[] | null
           id?: string
+          image_url?: string | null
           level?: string | null
           meaning?: string
           memo?: string | null

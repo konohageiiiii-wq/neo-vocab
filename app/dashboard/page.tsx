@@ -262,7 +262,7 @@ export default async function DashboardPage() {
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
   const now = new Date().toISOString()
 
-  const [logsRes, cardsWithReviewsRes, decksRes, lastLogRes, weakWordsRes, apiUsageRes] = await Promise.all([
+  const [logsRes, cardsWithReviewsRes, decksRes, lastLogRes, weakWordsRes, apiUsageRes, imageUsageRes] = await Promise.all([
     supabase
       .from('study_logs')
       .select('is_correct, created_at')
@@ -298,6 +298,12 @@ export default async function DashboardPage() {
       .eq('user_id', user!.id)
       .eq('endpoint', 'generate-examples')
       .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
+    supabase
+      .from('api_usage')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user!.id)
+      .eq('endpoint', 'generate-image')
+      .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
   ])
 
   const logs = logsRes.data ?? []
@@ -305,7 +311,9 @@ export default async function DashboardPage() {
   const decks = decksRes.data ?? []
   const weakWords = weakWordsRes.data ?? []
   const apiUsageCount = apiUsageRes.count ?? 0
+  const imageUsageCount = imageUsageRes.count ?? 0
   const API_LIMIT = 450
+  const IMAGE_LIMIT = 100
 
   // ── ユーザー表示名
   const userDisplayName = user?.email?.split('@')[0] ?? 'ゲスト'
@@ -696,41 +704,74 @@ export default async function DashboardPage() {
           <MonthlyHeatmap dailyCounts={dailyCounts} />
         )}
 
-        {/* ─── AI例文使用状況 ─── */}
+        {/* ─── AI使用状況 ─── */}
         <div
-          className="px-5 py-4"
+          className="px-5 py-4 space-y-4"
           style={{
             background: 'var(--lc-surface)',
             border: '1px solid var(--lc-border)',
             borderRadius: 'var(--radius-lg)',
           }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--lc-text-muted)' }}>
-              今月のAI例文生成
-            </span>
-            <span className="text-xs tabular-nums" style={{ color: 'var(--lc-text-muted)' }}>
-              {apiUsageCount} / {API_LIMIT}回
-            </span>
+          {/* 例文生成 */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--lc-text-muted)' }}>
+                今月のAI例文生成
+              </span>
+              <span className="text-xs tabular-nums" style={{ color: 'var(--lc-text-muted)' }}>
+                {apiUsageCount} / {API_LIMIT}回
+              </span>
+            </div>
+            <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'var(--lc-border)' }}>
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${Math.min(Math.round((apiUsageCount / API_LIMIT) * 100), 100)}%`,
+                  background: apiUsageCount >= API_LIMIT
+                    ? 'var(--lc-danger)'
+                    : apiUsageCount >= API_LIMIT * 0.8
+                      ? 'var(--lc-streak)'
+                      : 'var(--lc-accent)',
+                }}
+              />
+            </div>
+            {apiUsageCount >= API_LIMIT && (
+              <p className="text-xs mt-1.5" style={{ color: 'var(--lc-danger)' }}>
+                今月の上限に達しました。来月また使えます。
+              </p>
+            )}
           </div>
-          <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'var(--lc-border)' }}>
-            <div
-              className="h-full rounded-full transition-all"
-              style={{
-                width: `${Math.min(Math.round((apiUsageCount / API_LIMIT) * 100), 100)}%`,
-                background: apiUsageCount >= API_LIMIT
-                  ? 'var(--lc-danger)'
-                  : apiUsageCount >= API_LIMIT * 0.8
-                    ? 'var(--lc-streak)'
-                    : 'var(--lc-accent)',
-              }}
-            />
+
+          {/* 画像生成 */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--lc-text-muted)' }}>
+                今月のAI画像生成
+              </span>
+              <span className="text-xs tabular-nums" style={{ color: 'var(--lc-text-muted)' }}>
+                {imageUsageCount} / {IMAGE_LIMIT}回
+              </span>
+            </div>
+            <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'var(--lc-border)' }}>
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${Math.min(Math.round((imageUsageCount / IMAGE_LIMIT) * 100), 100)}%`,
+                  background: imageUsageCount >= IMAGE_LIMIT
+                    ? 'var(--lc-danger)'
+                    : imageUsageCount >= IMAGE_LIMIT * 0.8
+                      ? 'var(--lc-streak)'
+                      : 'var(--lc-accent)',
+                }}
+              />
+            </div>
+            {imageUsageCount >= IMAGE_LIMIT && (
+              <p className="text-xs mt-1.5" style={{ color: 'var(--lc-danger)' }}>
+                今月の上限に達しました。来月また使えます。
+              </p>
+            )}
           </div>
-          {apiUsageCount >= API_LIMIT && (
-            <p className="text-xs mt-1.5" style={{ color: 'var(--lc-danger)' }}>
-              今月の上限に達しました。来月また使えます。
-            </p>
-          )}
         </div>
 
         {/* ─── デッキなし空状態 ─── */}

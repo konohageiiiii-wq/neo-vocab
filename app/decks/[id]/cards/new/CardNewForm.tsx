@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react'
 import Link from 'next/link'
+import { ImageIcon } from 'lucide-react'
 import { createCard } from '@/lib/actions/card-actions'
 
 const initialState = { error: null }
@@ -19,6 +20,11 @@ export default function CardNewForm({
   const [generating, setGenerating] = useState(false)
   const [genError, setGenError] = useState<string | null>(null)
   const [word, setWord] = useState('')
+  const [meaning, setMeaning] = useState('')
+
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [imageGenerating, setImageGenerating] = useState(false)
+  const [imageError, setImageError] = useState<string | null>(null)
 
   async function handleGenerate() {
     if (!word.trim()) {
@@ -43,6 +49,29 @@ export default function CardNewForm({
     }
   }
 
+  async function handleGenerateImage() {
+    if (!word.trim()) {
+      setImageError('単語を入力してください')
+      return
+    }
+    setImageGenerating(true)
+    setImageError(null)
+    try {
+      const res = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word, meaning, examples, language }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setImageUrl(data.imageUrl)
+    } catch (e) {
+      setImageError(e instanceof Error ? e.message : '画像生成に失敗しました')
+    } finally {
+      setImageGenerating(false)
+    }
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="mb-6">
@@ -58,6 +87,7 @@ export default function CardNewForm({
       <form action={action} className="space-y-5">
         <input type="hidden" name="deck_id" value={deckId} />
         <input type="hidden" name="examples" value={JSON.stringify(examples)} />
+        <input type="hidden" name="image_url" value={imageUrl ?? ''} />
 
         {/* 単語 */}
         <div>
@@ -112,6 +142,8 @@ export default function CardNewForm({
             name="meaning"
             type="text"
             required
+            value={meaning}
+            onChange={(e) => setMeaning(e.target.value)}
             className="w-full px-4 py-3 text-base transition-colors focus:outline-none focus:ring-2"
             style={{
               background: 'var(--lc-surface)',
@@ -212,6 +244,69 @@ export default function CardNewForm({
                 />
               ))}
               <p className="text-xs" style={{ color: 'var(--lc-text-muted)' }}>例文は編集できます</p>
+            </div>
+          )}
+        </div>
+
+        {/* AI画像生成 */}
+        <div
+          className="p-4 space-y-3"
+          style={{
+            background: 'var(--lc-surface)',
+            border: '1px solid var(--lc-border)',
+            borderRadius: 'var(--radius-lg)',
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium" style={{ color: 'var(--lc-text-secondary)' }}>
+              AI画像生成
+            </span>
+            <button
+              type="button"
+              onClick={handleGenerateImage}
+              disabled={imageGenerating}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              style={{ background: 'var(--lc-accent)', borderRadius: 'var(--radius-md)' }}
+            >
+              <ImageIcon size={13} />
+              {imageGenerating ? '生成中...' : '画像を生成する'}
+            </button>
+          </div>
+
+          {imageGenerating && (
+            <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--lc-text-muted)' }}>
+              <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+              画像を生成中...
+            </div>
+          )}
+
+          {imageError && (
+            <p
+              className="text-sm px-3 py-2"
+              style={{
+                color: 'var(--lc-danger)',
+                background: 'var(--lc-danger-light)',
+                borderRadius: 'var(--radius-sm)',
+              }}
+            >
+              {imageError}
+            </p>
+          )}
+
+          {imageUrl && (
+            <div className="space-y-2">
+              <img
+                src={imageUrl}
+                alt={`${word} のイメージ`}
+                className="w-32 h-32 object-cover"
+                style={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--lc-border)' }}
+              />
+              <p className="text-xs" style={{ color: 'var(--lc-text-muted)' }}>
+                「画像を生成する」で再生成できます
+              </p>
             </div>
           )}
         </div>

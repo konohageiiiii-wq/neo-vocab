@@ -38,6 +38,7 @@ export async function createCard(
   }
 
   const memo = formData.get('memo') as string
+  const image_url = formData.get('image_url') as string
 
   const { error } = await supabase.from('cards').insert({
     deck_id,
@@ -49,6 +50,7 @@ export async function createCard(
     level: level || null,
     examples,
     memo: memo || null,
+    image_url: image_url || null,
   })
 
   if (error) return { error: 'カードの作成に失敗しました' }
@@ -66,11 +68,12 @@ export async function updateCard(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: '認証が必要です' }
 
-  const card_id = formData.get('card_id') as string
-  const word    = formData.get('word') as string
-  const reading = formData.get('reading') as string
-  const meaning = formData.get('meaning') as string
-  const memo    = formData.get('memo') as string
+  const card_id   = formData.get('card_id') as string
+  const word      = formData.get('word') as string
+  const reading   = formData.get('reading') as string
+  const meaning   = formData.get('meaning') as string
+  const memo      = formData.get('memo') as string
+  const image_url = formData.get('image_url') as string
 
   const { data: card } = await supabase
     .from('cards')
@@ -92,6 +95,7 @@ export async function updateCard(
       meaning,
       examples,
       memo: memo || null,
+      image_url: image_url || null,
     })
     .eq('id', card_id)
     .eq('user_id', user.id)
