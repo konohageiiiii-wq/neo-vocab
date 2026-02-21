@@ -73,17 +73,17 @@ export async function POST(request: Request) {
   const posHint   = sanitizedPos ? ` (${sanitizedPos})` : ''
   const levelHint = level ? ` at CEFR level ${level}` : ''
 
-  const prompt = `Generate exactly 1 natural example sentence in ${langName} using the word "${word}"${posHint}${levelHint}.
+  const prompt = `Generate exactly 1 natural example sentence in ${langName} using the word "${word}"${posHint}${levelHint}, and provide its Japanese translation.
 
 Requirements:
 - The sentence must use the word "${word}" naturally
 - The sentence should be appropriate for CEFR level ${level ?? 'B1'}
-- Return ONLY a JSON array of 1 string, no explanation
-- Example format: ["Sentence 1."]`
+- Return ONLY a JSON array with 1 object containing "sentence" and "translation" keys, no explanation
+- Example format: [{"sentence": "Sentence here.", "translation": "日本語訳"}]`
 
   const message = await client.messages.create({
     model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 256,
+    max_tokens: 512,
     messages: [{ role: 'user', content: prompt }],
   })
 
@@ -92,8 +92,14 @@ Requirements:
   let examples: string[]
   try {
     const match = text.match(/\[[\s\S]*\]/)
-    examples = JSON.parse(match ? match[0] : text)
-    if (!Array.isArray(examples) || examples.length !== 1) throw new Error()
+    const parsed = JSON.parse(match ? match[0] : text)
+    if (!Array.isArray(parsed) || parsed.length !== 1) throw new Error()
+    const item = parsed[0]
+    if (typeof item === 'string') {
+      examples = [item]
+    } else {
+      examples = [`${item.sentence}\n${item.translation}`]
+    }
   } catch {
     return NextResponse.json({ error: '例文の生成に失敗しました。再度お試しください。' }, { status: 500 })
   }

@@ -186,11 +186,17 @@ export default function StudyClient({
                     className="pt-4 space-y-2"
                     style={{ borderTop: '1px solid var(--lc-border)' }}
                   >
-                    {card.examples.map((ex, i) => (
-                      <p key={i} className="text-sm leading-relaxed" style={{ color: 'var(--lc-text-muted)' }}>
-                        {ex}
-                      </p>
-                    ))}
+                    {card.examples.map((ex, i) => {
+                      const [sentence, translation] = ex.split('\n')
+                      return (
+                        <div key={i}>
+                          <p className="text-sm leading-relaxed" style={{ color: 'var(--lc-text-muted)' }}>{sentence}</p>
+                          {translation && (
+                            <p className="text-xs leading-relaxed mt-0.5" style={{ color: 'var(--lc-text-muted)', opacity: 0.7 }}>{translation}</p>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
                 )}
                 {/* 音声ボタン */}

@@ -137,11 +137,19 @@ export default function CardList({ cards, isOwner, deckId }: { cards: Card[]; is
               <p className="text-base text-gray-700 leading-relaxed">{selectedCard.meaning}</p>
 
               {selectedCard.examples && selectedCard.examples.length > 0 && (
-                <div className="border-t border-gray-100 pt-4 space-y-2">
+                <div className="border-t border-gray-100 pt-4 space-y-3">
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">例文</p>
-                  {selectedCard.examples.map((ex, i) => (
-                    <p key={i} className="text-sm text-gray-600 leading-relaxed">{ex}</p>
-                  ))}
+                  {selectedCard.examples.map((ex, i) => {
+                    const [sentence, translation] = ex.split('\n')
+                    return (
+                      <div key={i}>
+                        <p className="text-sm text-gray-600 leading-relaxed">{sentence}</p>
+                        {translation && (
+                          <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{translation}</p>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               )}
 
