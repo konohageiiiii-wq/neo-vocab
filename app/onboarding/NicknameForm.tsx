@@ -29,7 +29,7 @@ export default function NicknameForm() {
           placeholder="例：taro"
         />
         <p className="text-xs mt-2 text-center" style={{ color: 'var(--lc-text-muted)' }}>
-          20文字以内 ・ あとから変更はできません
+          20文字以内 ・ あとから設定で変更できます
         </p>
       </div>
 

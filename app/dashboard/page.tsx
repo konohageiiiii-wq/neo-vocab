@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/app/auth/actions'
 import {
   Flame, ArrowRight, Plus, BookOpen,
-  RotateCcw, CheckCircle2, Layers, Brain, TrendingUp, TrendingDown,
+  RotateCcw, CheckCircle2, Layers, Brain, TrendingUp, TrendingDown, Settings,
 } from 'lucide-react'
 
 function formatTimeUntil(iso: string): string {
@@ -412,6 +412,14 @@ export default async function DashboardPage() {
               style={{ color: 'var(--lc-text-secondary)' }}
             >
               デッキ一覧
+            </Link>
+            <Link
+              href="/settings"
+              className="p-1.5 rounded-lg transition-colors hover:bg-gray-100"
+              style={{ color: 'var(--lc-text-muted)' }}
+              title="設定"
+            >
+              <Settings size={16} />
             </Link>
             <form action={signOut}>
               <button
