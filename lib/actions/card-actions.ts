@@ -21,18 +21,29 @@ const VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
   'es-AR': { languageCode: 'es-US', name: 'es-US-Neural2-A' },
 }
 
+// language（'en'|'es'）単体でのフォールバックボイス
+const LANGUAGE_FALLBACK: Record<string, { languageCode: string; name: string }> = {
+  en: { languageCode: 'en-US', name: 'en-US-Neural2-C' },
+  es: { languageCode: 'es-US', name: 'es-US-Neural2-A' },
+}
+
 async function generateAudio(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
   cardId: string,
   word: string,
-  accent: string | null
+  accent: string | null,
+  language?: string | null
 ): Promise<string | null> {
   try {
     const apiKey = process.env.GOOGLE_TTS_API_KEY
     if (!apiKey) return null
 
-    const voice = VOICE_MAP[accent ?? ''] ?? { languageCode: 'en-US', name: 'en-US-Neural2-C' }
+    // accent → language フォールバック → 英語デフォルト の順で解決
+    const voice =
+      VOICE_MAP[accent ?? ''] ??
+      LANGUAGE_FALLBACK[language ?? ''] ??
+      { languageCode: 'en-US', name: 'en-US-Neural2-C' }
 
     const ttsRes = await fetch(
       `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
@@ -85,10 +96,10 @@ export async function createCard(
   const part_of_speech = formData.get('part_of_speech') as string
   const level = formData.get('level') as string
 
-  // デッキ所有権確認 + accent 取得
+  // デッキ所有権確認 + accent / language 取得
   const { data: deck } = await supabase
     .from('decks')
-    .select('user_id, accent')
+    .select('user_id, accent, language')
     .eq('id', deck_id)
     .single()
 
@@ -121,7 +132,7 @@ export async function createCard(
   if (error || !newCard) return { error: 'カードの作成に失敗しました' }
 
   // 音声を自動生成（失敗してもカード作成は続行）
-  const audioUrl = await generateAudio(supabase, user.id, newCard.id, word, deck.accent)
+  const audioUrl = await generateAudio(supabase, user.id, newCard.id, word, deck.accent, deck.language)
   if (audioUrl) {
     await supabase.from('cards').update({ audio_url: audioUrl }).eq('id', newCard.id)
   }
@@ -176,11 +187,11 @@ export async function updateCard(
   // 単語の音声を再生成（失敗しても更新は続行）
   const { data: deck } = await supabase
     .from('decks')
-    .select('accent')
+    .select('accent, language')
     .eq('id', card.deck_id)
     .single()
 
-  const audioUrl = await generateAudio(supabase, user.id, card_id, word, deck?.accent ?? null)
+  const audioUrl = await generateAudio(supabase, user.id, card_id, word, deck?.accent ?? null, deck?.language ?? null)
   if (audioUrl) {
     await supabase.from('cards').update({ audio_url: audioUrl }).eq('id', card_id)
   }
