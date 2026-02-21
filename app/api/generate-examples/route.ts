@@ -73,10 +73,13 @@ export async function POST(request: Request) {
   const posHint   = sanitizedPos ? ` (${sanitizedPos})` : ''
   const levelHint = level ? ` at CEFR level ${level}` : ''
 
-  const prompt = `Generate exactly 1 natural example sentence in ${langName} using the word "${word}"${posHint}${levelHint}, and provide its Japanese translation.
+  // ユーザー入力を XML タグで囲みプロンプトインジェクションを防止
+  const prompt = `Generate exactly 1 natural example sentence in ${langName} using the word below${posHint}${levelHint}, and provide its Japanese translation.
+
+<word>${word}</word>
 
 Requirements:
-- The sentence must use the word "${word}" naturally
+- The sentence must use the word naturally
 - The sentence should be appropriate for CEFR level ${level ?? 'B1'}
 - Return ONLY a JSON array with 1 object containing "sentence" and "translation" keys, no explanation
 - Example format: [{"sentence": "Sentence here.", "translation": "日本語訳"}]`

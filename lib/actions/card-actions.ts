@@ -4,6 +4,12 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
+// image_url は https:// のみ許可（data:, javascript: 等による XSS を防止）
+function sanitizeImageUrl(url: string | null | undefined): string | null {
+  if (!url || !url.startsWith('https://') || url.length > 2048) return null
+  return url
+}
+
 // Google Cloud TTS Neural2 voice mapping (BCP-47 accent → voice)
 const VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
   'en-US': { languageCode: 'en-US', name: 'en-US-Neural2-C' },
@@ -97,7 +103,7 @@ export async function createCard(
   }
 
   const memo = formData.get('memo') as string
-  const image_url = formData.get('image_url') as string
+  const image_url = sanitizeImageUrl(formData.get('image_url') as string)
 
   const { data: newCard, error } = await supabase.from('cards').insert({
     deck_id,
@@ -109,7 +115,7 @@ export async function createCard(
     level: level || null,
     examples,
     memo: memo || null,
-    image_url: image_url || null,
+    image_url,
   }).select('id').single()
 
   if (error || !newCard) return { error: 'カードの作成に失敗しました' }
@@ -138,7 +144,7 @@ export async function updateCard(
   const reading   = formData.get('reading') as string
   const meaning   = formData.get('meaning') as string
   const memo      = formData.get('memo') as string
-  const image_url = formData.get('image_url') as string
+  const image_url = sanitizeImageUrl(formData.get('image_url') as string)
 
   const { data: card } = await supabase
     .from('cards')
@@ -160,7 +166,7 @@ export async function updateCard(
       meaning,
       examples,
       memo: memo || null,
-      image_url: image_url || null,
+      image_url,
     })
     .eq('id', card_id)
     .eq('user_id', user.id)
