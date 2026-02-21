@@ -437,7 +437,7 @@ export default async function DashboardPage() {
                     {streak}日連続
                   </span>
                 )}
-                {dueCount === 0 && reviews.length > 0 && (
+                {dueCount === 0 && totalCards > 0 && (
                   <span
                     className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full"
                     style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}
