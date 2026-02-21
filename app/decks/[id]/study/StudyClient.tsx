@@ -51,8 +51,11 @@ export default function StudyClient({
   const handleRate = useCallback(async (rating: Rating) => {
     if (submitting) return
     setSubmitting(true)
-    await submitReview(card.id, card.deck_id, rating, true, 'flashcard')
-
+    try {
+      await submitReview(card.id, card.deck_id, rating, true, 'flashcard')
+    } catch {
+      // submitReview のエラーは無視して次のカードへ進む
+    }
     if (index + 1 >= cards.length) {
       setDone(true)
     } else {
