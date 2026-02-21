@@ -4,6 +4,65 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
+// Google Cloud TTS Neural2 voice mapping (BCP-47 accent → voice)
+const VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
+  'en-US': { languageCode: 'en-US', name: 'en-US-Neural2-C' },
+  'en-GB': { languageCode: 'en-GB', name: 'en-GB-Neural2-C' },
+  'en-AU': { languageCode: 'en-AU', name: 'en-AU-Neural2-C' },
+  'es-ES': { languageCode: 'es-ES', name: 'es-ES-Neural2-A' },
+  'es-MX': { languageCode: 'es-US', name: 'es-US-Neural2-A' },
+  'es-CO': { languageCode: 'es-US', name: 'es-US-Neural2-A' },
+  'es-AR': { languageCode: 'es-US', name: 'es-US-Neural2-A' },
+}
+
+async function generateAudio(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  cardId: string,
+  word: string,
+  accent: string | null
+): Promise<string | null> {
+  try {
+    const apiKey = process.env.GOOGLE_TTS_API_KEY
+    if (!apiKey) return null
+
+    const voice = VOICE_MAP[accent ?? ''] ?? { languageCode: 'en-US', name: 'en-US-Neural2-C' }
+
+    const ttsRes = await fetch(
+      `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input: { text: word },
+          voice,
+          audioConfig: { audioEncoding: 'MP3' },
+        }),
+      }
+    )
+
+    if (!ttsRes.ok) return null
+
+    const { audioContent } = await ttsRes.json() as { audioContent: string }
+    const audioBuffer = Buffer.from(audioContent, 'base64')
+
+    const filePath = `${userId}/${cardId}.mp3`
+    const { error: uploadError } = await supabase.storage
+      .from('card-audio')
+      .upload(filePath, audioBuffer, { contentType: 'audio/mpeg', upsert: true })
+
+    if (uploadError) return null
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('card-audio')
+      .getPublicUrl(filePath)
+
+    return publicUrl
+  } catch {
+    return null
+  }
+}
+
 export async function createCard(
   _prevState: { error: string | null },
   formData: FormData
@@ -20,10 +79,10 @@ export async function createCard(
   const part_of_speech = formData.get('part_of_speech') as string
   const level = formData.get('level') as string
 
-  // デッキ所有権確認：自分のデッキにのみカード追加可能
+  // デッキ所有権確認 + accent 取得
   const { data: deck } = await supabase
     .from('decks')
-    .select('user_id')
+    .select('user_id, accent')
     .eq('id', deck_id)
     .single()
 
@@ -40,7 +99,7 @@ export async function createCard(
   const memo = formData.get('memo') as string
   const image_url = formData.get('image_url') as string
 
-  const { error } = await supabase.from('cards').insert({
+  const { data: newCard, error } = await supabase.from('cards').insert({
     deck_id,
     user_id: user.id,
     word,
@@ -51,9 +110,15 @@ export async function createCard(
     examples,
     memo: memo || null,
     image_url: image_url || null,
-  })
+  }).select('id').single()
 
-  if (error) return { error: 'カードの作成に失敗しました' }
+  if (error || !newCard) return { error: 'カードの作成に失敗しました' }
+
+  // 音声を自動生成（失敗してもカード作成は続行）
+  const audioUrl = await generateAudio(supabase, user.id, newCard.id, word, deck.accent)
+  if (audioUrl) {
+    await supabase.from('cards').update({ audio_url: audioUrl }).eq('id', newCard.id)
+  }
 
   revalidatePath(`/decks/${deck_id}`)
   redirect(`/decks/${deck_id}`)
@@ -101,6 +166,18 @@ export async function updateCard(
     .eq('user_id', user.id)
 
   if (error) return { error: 'カードの更新に失敗しました' }
+
+  // 単語の音声を再生成（失敗しても更新は続行）
+  const { data: deck } = await supabase
+    .from('decks')
+    .select('accent')
+    .eq('id', card.deck_id)
+    .single()
+
+  const audioUrl = await generateAudio(supabase, user.id, card_id, word, deck?.accent ?? null)
+  if (audioUrl) {
+    await supabase.from('cards').update({ audio_url: audioUrl }).eq('id', card_id)
+  }
 
   revalidatePath(`/decks/${card.deck_id}`)
   redirect(`/decks/${card.deck_id}`)

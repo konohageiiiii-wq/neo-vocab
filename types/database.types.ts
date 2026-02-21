@@ -78,6 +78,7 @@ export type Database = {
       }
       cards: {
         Row: {
+          audio_url: string | null
           created_at: string
           deck_id: string
           examples: string[] | null
@@ -92,6 +93,7 @@ export type Database = {
           word: string
         }
         Insert: {
+          audio_url?: string | null
           created_at?: string
           deck_id: string
           examples?: string[] | null
@@ -106,6 +108,7 @@ export type Database = {
           word: string
         }
         Update: {
+          audio_url?: string | null
           created_at?: string
           deck_id?: string
           examples?: string[] | null

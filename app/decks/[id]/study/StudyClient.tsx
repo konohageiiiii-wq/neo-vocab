@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Tables } from '@/types/database.types'
 import { submitReview } from '@/lib/actions/review-actions'
@@ -8,13 +8,18 @@ import { submitReview } from '@/lib/actions/review-actions'
 type Card = Tables<'cards'>
 type Rating = 'easy' | 'normal' | 'hard'
 
-// accent: BCP-47タグ (例: 'en-US', 'es-MX')
-// 1. 完全一致を優先、2. 同言語の別アクセントにフォールバック
-function speak(text: string, accent: string) {
+// 高品質音声 (audio_url) を優先、なければ Web Speech API にフォールバック
+function playAudio(audioUrl: string | null | undefined, word: string, accent: string) {
+  if (audioUrl) {
+    const audio = new Audio(audioUrl)
+    audio.play().catch(() => {})
+    return
+  }
+  // Web Speech API フォールバック
   if (typeof window === 'undefined') return
   if (!window.speechSynthesis) return
   try {
-    const utterance = new SpeechSynthesisUtterance(text)
+    const utterance = new SpeechSynthesisUtterance(word)
     const langPrefix = accent.split('-')[0]
     const voices = window.speechSynthesis.getVoices()
     const voice = voices.find((v) => v.lang === accent)
@@ -25,7 +30,7 @@ function speak(text: string, accent: string) {
     window.speechSynthesis.cancel()
     window.speechSynthesis.speak(utterance)
   } catch {
-    // 音声読み上げ非対応環境では無視
+    // 音声再生非対応環境では無視
   }
 }
 
@@ -53,6 +58,16 @@ export default function StudyClient({
 
   const card = cards[index]
 
+  // 最初のカードを自動再生（マウント時）
+  const mountedRef = useRef(false)
+  useEffect(() => {
+    if (!mountedRef.current && card) {
+      mountedRef.current = true
+      playAudio(card.audio_url, card.word, accent)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const handleRate = useCallback(async (rating: Rating) => {
     if (submitting) return
     setSubmitting(true)
@@ -61,14 +76,17 @@ export default function StudyClient({
     } catch {
       // submitReview のエラーは無視して次のカードへ進む
     }
-    if (index + 1 >= cards.length) {
+    const nextIndex = index + 1
+    if (nextIndex >= cards.length) {
       setDone(true)
     } else {
-      setIndex(index + 1)
+      setIndex(nextIndex)
       setFlipped(false)
+      // 次のカードの音声をユーザー操作内で再生（モバイル制限を回避）
+      playAudio(cards[nextIndex].audio_url, cards[nextIndex].word, accent)
     }
     setSubmitting(false)
-  }, [submitting, card, index, cards.length])
+  }, [submitting, card, index, cards, accent])
 
   const handleRestart = () => {
     setIndex(0)
@@ -146,7 +164,13 @@ export default function StudyClient({
         <div className="w-full max-w-lg">
           {/* フラッシュカード本体 */}
           <div
-            onClick={() => !flipped && setFlipped(true)}
+            onClick={() => {
+              if (!flipped) {
+                setFlipped(true)
+                // カードをタップしたときも音声再生（ユーザー操作内）
+                playAudio(card.audio_url, card.word, accent)
+              }
+            }}
             className={`rounded-2xl p-8 min-h-56 flex flex-col items-center justify-center select-none transition-shadow ${!flipped ? 'cursor-pointer hover:shadow-md' : ''}`}
             style={{
               background: 'var(--lc-surface)',
@@ -215,10 +239,13 @@ export default function StudyClient({
                     })}
                   </div>
                 )}
-                {/* 音声ボタン */}
+                {/* 読み上げボタン */}
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); speak(card.word, accent) }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    playAudio(card.audio_url, card.word, accent)
+                  }}
                   className="flex items-center gap-1.5 text-xs transition-opacity hover:opacity-70 cursor-pointer"
                   style={{ color: 'var(--lc-text-muted)' }}
                 >
