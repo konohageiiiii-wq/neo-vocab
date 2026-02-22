@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import DeckListSorted from '@/components/DeckListSorted'
 import DeckCard from '@/components/DeckCard'
 import { Tables } from '@/types/database.types'
+import { ChevronLeft, Plus } from 'lucide-react'
 
 type DeckWithCount = Tables<'decks'> & { card_count: number; is_owner: boolean }
 
@@ -37,23 +38,30 @@ export default async function DecksPage() {
   const publicDecks = toDecks(publicDecksRes.data, false)
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       {/* ヘッダー */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
+      <div className="flex items-start justify-between gap-3 mb-6 sm:mb-8">
+        <div>
           <Link
             href="/dashboard"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="inline-flex items-center gap-1 text-xs font-medium mb-1.5 transition-opacity hover:opacity-70"
+            style={{ color: 'var(--lc-text-muted)' }}
           >
-            ← ダッシュボード
+            <ChevronLeft size={13} />
+            ダッシュボード
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">マイデッキ</h1>
+          <h1 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--lc-text-primary)' }}>
+            マイデッキ
+          </h1>
         </div>
         <Link
           href="/decks/new"
-          className="px-4 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
+          className="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-white px-3 sm:px-4 py-2 sm:py-2.5 transition-opacity hover:opacity-90"
+          style={{ background: 'var(--lc-accent)', borderRadius: 'var(--radius-md)' }}
         >
-          + 新規デッキ作成
+          <Plus size={14} />
+          <span className="hidden sm:inline">新規デッキ作成</span>
+          <span className="sm:hidden">新規作成</span>
         </Link>
       </div>
 
