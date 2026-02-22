@@ -71,12 +71,12 @@ export default async function LandingPage() {
             </div>
 
             <h1
-              className="font-black leading-[1.1] mb-6"
-              style={{ color: '#F8FAFC', fontSize: 'clamp(2.2rem, 4.5vw, 3.5rem)' }}
+              className="font-black leading-[1.08] mb-6"
+              style={{ color: '#F8FAFC', fontSize: 'clamp(2.5rem, 5vw, 3.75rem)' }}
             >
-              単語を登録するだけ。
+              語学学習を、
               <br />
-              <span style={{ color: '#818CF8' }}>あとはAIが全部やってくれる。</span>
+              <span style={{ color: '#818CF8' }}>科学的に。</span>
             </h1>
 
             <p className="text-lg leading-relaxed mb-10 max-w-md" style={{ color: DARK_MUTED }}>
