@@ -1,26 +1,38 @@
 import Link from 'next/link'
-import { BookOpen } from 'lucide-react'
+import { BookOpen, ChevronRight } from 'lucide-react'
 import { Tables } from '@/types/database.types'
 
 type Deck = Tables<'decks'> & { card_count?: number; is_owner?: boolean }
 
-const LANGUAGE_META: Record<string, { label: string; gradient: string; textColor: string }> = {
+const LANGUAGE_META: Record<string, {
+  label: string
+  borderColor: string
+  bg: string
+  badgeBg: string
+  badgeColor: string
+}> = {
   en: {
     label: 'English',
-    gradient: 'linear-gradient(135deg, #3B82F6 0%, #6366F1 100%)',
-    textColor: '#BFDBFE',
+    borderColor: 'var(--lc-accent)',
+    bg: '#F5F7FF',
+    badgeBg: 'var(--lc-accent-light)',
+    badgeColor: 'var(--lc-accent)',
   },
   es: {
     label: 'Español',
-    gradient: 'linear-gradient(135deg, #F97316 0%, #EF4444 100%)',
-    textColor: '#FED7AA',
+    borderColor: '#F59E0B',
+    bg: '#FFFBEB',
+    badgeBg: '#FFF7ED',
+    badgeColor: '#D97706',
   },
 }
 
 const FALLBACK_META = {
-  label: '',
-  gradient: 'linear-gradient(135deg, #6B7280 0%, #374151 100%)',
-  textColor: '#E5E7EB',
+  label: '?',
+  borderColor: 'var(--lc-border-strong)',
+  bg: 'var(--lc-bg)',
+  badgeBg: 'var(--lc-bg)',
+  badgeColor: 'var(--lc-text-muted)',
 }
 
 export default function DeckCard({ deck }: { deck: Deck }) {
@@ -29,61 +41,70 @@ export default function DeckCard({ deck }: { deck: Deck }) {
   return (
     <Link
       href={`/decks/${deck.id}`}
-      className="block transition-shadow hover:shadow-md overflow-hidden"
+      className="flex items-center gap-3 transition-opacity hover:opacity-75"
       style={{
-        background: 'var(--lc-surface)',
+        background: meta.bg,
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--lc-border)',
+        borderLeft: `3px solid ${meta.borderColor}`,
+        padding: '14px 12px 14px 14px',
       }}
     >
-      {/* カバー */}
-      <div
-        className="h-20 flex items-end px-4 pb-3"
-        style={{ background: meta.gradient }}
+      {/* 言語バッジ */}
+      <span
+        className="shrink-0 text-xs font-bold px-2 py-1"
+        style={{
+          background: meta.badgeBg,
+          color: meta.badgeColor,
+          borderRadius: 'var(--radius-sm)',
+          minWidth: '52px',
+          textAlign: 'center',
+        }}
       >
-        <div className="flex items-center justify-between w-full">
-          <span
-            className="text-xs font-semibold px-2 py-0.5"
-            style={{
-              background: 'rgba(0,0,0,0.25)',
-              color: meta.textColor,
-              borderRadius: 'var(--radius-full)',
-            }}
-          >
-            {meta.label}
-          </span>
-          {deck.is_public && !deck.is_owner && (
-            <span
-              className="text-xs font-medium px-2 py-0.5"
-              style={{
-                background: 'rgba(255,255,255,0.2)',
-                color: '#FFFFFF',
-                borderRadius: 'var(--radius-full)',
-              }}
-            >
-              公開
-            </span>
-          )}
-        </div>
-      </div>
+        {meta.label}
+      </span>
 
-      {/* コンテンツ */}
-      <div className="px-4 py-3">
-        <h3 className="font-semibold leading-snug mb-1" style={{ color: 'var(--lc-text-primary)' }}>
+      {/* デッキ名・説明 */}
+      <div className="flex-1 min-w-0">
+        <p
+          className="font-semibold text-sm leading-snug truncate"
+          style={{ color: 'var(--lc-text-primary)' }}
+        >
           {deck.name}
-        </h3>
-
-        {deck.description && (
-          <p className="text-sm line-clamp-2 mb-2" style={{ color: 'var(--lc-text-muted)' }}>
+        </p>
+        {deck.description ? (
+          <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--lc-text-muted)' }}>
             {deck.description}
           </p>
+        ) : (
+          <div className="flex items-center gap-1 mt-0.5" style={{ color: 'var(--lc-text-muted)' }}>
+            <BookOpen size={11} />
+            <span className="text-xs tabular-nums">{deck.card_count ?? 0}枚</span>
+            {deck.is_public && !deck.is_owner && (
+              <span
+                className="ml-1 text-xs px-1.5 py-0"
+                style={{
+                  background: 'var(--lc-bg)',
+                  border: '1px solid var(--lc-border)',
+                  borderRadius: 'var(--radius-full)',
+                  color: 'var(--lc-text-muted)',
+                }}
+              >
+                公開
+              </span>
+            )}
+          </div>
         )}
-
-        <div className="flex items-center gap-1.5" style={{ color: 'var(--lc-text-muted)' }}>
-          <BookOpen size={13} />
-          <span className="text-xs">{deck.card_count ?? 0} 枚</span>
-        </div>
+        {deck.description && (
+          <div className="flex items-center gap-1 mt-1" style={{ color: 'var(--lc-text-muted)' }}>
+            <BookOpen size={11} />
+            <span className="text-xs tabular-nums">{deck.card_count ?? 0}枚</span>
+          </div>
+        )}
       </div>
+
+      {/* 矢印 */}
+      <ChevronRight size={15} className="shrink-0" style={{ color: 'var(--lc-text-muted)' }} />
     </Link>
   )
 }

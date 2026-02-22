@@ -81,7 +81,7 @@ export default async function DecksPage() {
       {publicDecks.length > 0 && (
         <>
           <h2 className="text-xl font-bold text-gray-900 mb-4">公開デッキ</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {publicDecks.map((deck) => (
               <DeckCard key={deck.id} deck={deck} />
             ))}

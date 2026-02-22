@@ -83,7 +83,7 @@ export default function DeckListSorted({ decks }: { decks: DeckWithCount[] }) {
           「{query}」に一致するデッキが見つかりません
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {filtered.map((deck) => (
             <DeckCard key={deck.id} deck={deck} />
           ))}
