@@ -17,6 +17,7 @@ type CardRow = {
   word: string
   reading: string | null
   meaning: string
+  audio_url: string | null
   card_reviews: Array<{ ease_factor: number }> | null
 }
 
@@ -79,7 +80,7 @@ export default async function QuizPage() {
 
   const { data: rawCards } = await supabase
     .from('cards')
-    .select('id, deck_id, word, reading, meaning, card_reviews(ease_factor)')
+    .select('id, deck_id, word, reading, meaning, audio_url, card_reviews(ease_factor)')
     .eq('user_id', user.id)
 
   const cards = (rawCards ?? []) as CardRow[]
@@ -101,6 +102,7 @@ export default async function QuizPage() {
       deckId: card.deck_id,
       word: card.word,
       reading: card.reading,
+      audioUrl: card.audio_url,
       correctMeaning: card.meaning,
       choices,
     }

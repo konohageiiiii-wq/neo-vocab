@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { CheckCircle2, XCircle, Trophy } from 'lucide-react'
 import { submitReview } from '@/lib/actions/review-actions'
@@ -10,6 +10,7 @@ type QuizQuestion = {
   deckId: string
   word: string
   reading: string | null
+  audioUrl: string | null
   correctMeaning: string
   choices: string[]
 }
@@ -59,6 +60,32 @@ function playIncorrectSound() {
     setTimeout(() => ctx.close(), 1000)
   } catch {}
 }
+// ── 問題の単語を読み上げ（Google TTS audio_url 優先）──────
+function playWordAudio(audioUrl: string | null | undefined, word: string) {
+  if (audioUrl) {
+    const audio = new Audio(audioUrl)
+    audio.play().catch(() => {})
+    return
+  }
+  if (typeof window === 'undefined' || !window.speechSynthesis) return
+  const speak = () => {
+    try {
+      window.speechSynthesis.cancel()
+      const utter = new SpeechSynthesisUtterance(word)
+      utter.lang = 'en-US'
+      utter.rate = 0.9
+      window.speechSynthesis.speak(utter)
+    } catch {}
+  }
+  if (window.speechSynthesis.getVoices().length > 0) {
+    speak()
+  } else {
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.onvoiceschanged = null
+      speak()
+    }
+  }
+}
 // ─────────────────────────────────────────────────────
 
 export default function QuizClient({ questions }: { questions: QuizQuestion[] }) {
@@ -70,6 +97,15 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
 
   const q = questions[index]
   const selected = answer?.questionIndex === index ? answer.choice : null
+
+  // 問題が切り替わったら単語を自動読み上げ
+  useEffect(() => {
+    if (!done) {
+      // 少し遅延させてページ遷移の音と被らないようにする
+      const t = setTimeout(() => playWordAudio(q.audioUrl, q.word), 300)
+      return () => clearTimeout(t)
+    }
+  }, [index, done]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSelect = useCallback((choice: string) => {
     if (answer?.questionIndex === index || advancing.current) return
@@ -203,15 +239,21 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
             <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--lc-text-muted)' }}>
               この単語の意味は？
             </p>
-            <p
-              className="font-bold leading-snug"
-              style={{
-                color: 'var(--lc-text-primary)',
-                fontSize: q.word.length > 30 ? '1.1rem' : q.word.length > 15 ? '1.5rem' : '1.875rem',
-              }}
+            <button
+              onClick={() => playWordAudio(q.audioUrl, q.word)}
+              className="cursor-pointer transition-opacity hover:opacity-70"
+              style={{ background: 'none', border: 'none', padding: 0 }}
             >
-              {q.word}
-            </p>
+              <p
+                className="font-bold leading-snug"
+                style={{
+                  color: 'var(--lc-text-primary)',
+                  fontSize: q.word.length > 30 ? '1.1rem' : q.word.length > 15 ? '1.5rem' : '1.875rem',
+                }}
+              >
+                {q.word}
+              </p>
+            </button>
             {q.reading && (
               <p className="text-sm mt-2" style={{ color: 'var(--lc-text-muted)' }}>{q.reading}</p>
             )}
