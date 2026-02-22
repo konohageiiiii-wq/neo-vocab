@@ -56,7 +56,10 @@ export async function signOut() {
   redirect('/auth')
 }
 
-export async function signInWithGoogle(): Promise<{ error: string | null }> {
+export async function signInWithGoogle(
+  _prevState: { error: string | null; message?: string | null },
+  _formData: FormData
+): Promise<{ error: string | null; message?: string | null }> {
   const supabase = await createClient()
 
   if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_SITE_URL) {
