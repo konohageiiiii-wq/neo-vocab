@@ -2,9 +2,9 @@
 
 import { useActionState, useState } from 'react'
 import { signIn, signUp, signInWithGoogle } from './actions'
-import { Sparkles, Brain, Volume2, AlertCircle } from 'lucide-react'
+import { Sparkles, Brain, Volume2, AlertCircle, MailCheck } from 'lucide-react'
 
-const initialState = { error: null }
+const initialState = { error: null, message: null }
 
 export default function AuthPage() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
@@ -16,6 +16,7 @@ export default function AuthPage() {
   const action = isSignIn ? signInAction : signUpAction
   const pending = isSignIn ? signInPending : signUpPending
   const error = isSignIn ? signInState.error : signUpState.error
+  const successMessage = !isSignIn ? signUpState.message : null
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -219,8 +220,24 @@ export default function AuthPage() {
             <div className="flex-1 h-px" style={{ background: 'var(--lc-border)' }} />
           </div>
 
+          {/* 登録完了メッセージ（確認メール送信後） */}
+          {successMessage && (
+            <div
+              className="flex items-start gap-3 text-sm px-4 py-4"
+              style={{
+                color: 'var(--lc-success)',
+                background: 'var(--lc-success-light)',
+                border: '1px solid #6EE7B7',
+                borderRadius: 'var(--radius-lg)',
+              }}
+            >
+              <MailCheck size={18} className="shrink-0 mt-0.5" />
+              <p>{successMessage}</p>
+            </div>
+          )}
+
           {/* メール・パスワードフォーム */}
-          <form action={action} className="space-y-5">
+          <form action={action} className={`space-y-5 ${successMessage ? 'hidden' : ''}`}>
             <div className="space-y-1.5">
               <label htmlFor="email" className="block text-sm font-semibold" style={{ color: 'var(--lc-text-secondary)' }}>
                 メールアドレス
@@ -230,7 +247,7 @@ export default function AuthPage() {
                 name="email"
                 type="email"
                 required
-                className="w-full px-4 py-3.5 text-base placeholder:text-gray-300 focus:outline-none transition-all duration-200"
+                className="w-full px-4 py-3.5 text-base placeholder:text-gray-400 focus:outline-none transition-all duration-200"
                 placeholder="you@example.com"
                 style={{
                   background: 'var(--lc-surface)',
@@ -251,7 +268,7 @@ export default function AuthPage() {
                 type="password"
                 required
                 minLength={8}
-                className="w-full px-4 py-3.5 text-base placeholder:text-gray-300 focus:outline-none transition-all duration-200"
+                className="w-full px-4 py-3.5 text-base placeholder:text-gray-400 focus:outline-none transition-all duration-200"
                 placeholder="英字と数字を含む8文字以上"
                 style={{
                   background: 'var(--lc-surface)',

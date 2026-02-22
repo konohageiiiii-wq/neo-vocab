@@ -3,7 +3,10 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
-export async function signUp(_prevState: { error: string | null }, formData: FormData): Promise<{ error: string | null }> {
+export async function signUp(
+  _prevState: { error: string | null; message?: string | null },
+  formData: FormData
+): Promise<{ error: string | null; message?: string | null }> {
   const supabase = await createClient()
 
   const email    = formData.get('email') as string
@@ -15,14 +18,20 @@ export async function signUp(_prevState: { error: string | null }, formData: For
     return { error: 'パスワードは英字と数字を組み合わせた8文字以上にしてください' }
   }
 
-  const { error } = await supabase.auth.signUp({ email, password })
+  const { data, error } = await supabase.auth.signUp({ email, password })
 
   if (error) {
     console.error('[signUp]', error.message)
     return { error: 'アカウント作成に失敗しました。もう一度お試しください。' }
   }
 
-  redirect('/dashboard')
+  if (data.session) {
+    // メール確認不要の設定 → そのままダッシュボードへ
+    redirect('/dashboard')
+  }
+
+  // メール確認が必要な場合 → 確認メール送信済みメッセージを返す
+  return { error: null, message: '確認メールを送信しました。メール内のリンクをクリックしてからログインしてください。' }
 }
 
 export async function signIn(_prevState: { error: string | null }, formData: FormData): Promise<{ error: string | null }> {
