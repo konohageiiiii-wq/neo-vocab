@@ -316,8 +316,8 @@ export default async function DashboardPage() {
   const weakWords = weakWordsRes.data ?? []
   const apiUsageCount = apiUsageRes.count ?? 0
   const imageUsageCount = imageUsageRes.count ?? 0
-  const API_LIMIT = 450
-  const IMAGE_LIMIT = 100
+  const API_LIMIT = 300
+  const IMAGE_LIMIT = 300
 
   // ── ユーザー表示名（ニックネーム確定済み）
   const userDisplayName = user?.user_metadata?.nickname as string

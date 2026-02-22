@@ -11,9 +11,7 @@ const LANGUAGE_NAME: Record<string, string> = {
 
 const VALID_LANGUAGES = ['en', 'es']
 
-// コスト根拠: claude-sonnet-4-5 ($3/$15 per M tokens)
-// 1回あたり最悪 0.64円 → 月300円上限 = 469回 → 安全マージンで450回
-const LIMIT_PER_MONTH = 450
+const LIMIT_PER_MONTH = 300
 
 export async function POST(request: Request) {
   // 認証チェック
@@ -36,7 +34,7 @@ export async function POST(request: Request) {
 
   if ((monthRes.count ?? 0) >= LIMIT_PER_MONTH) {
     return NextResponse.json(
-      { error: '月間の例文生成上限（450回）に達しました。来月また試してください。' },
+      { error: '月間の例文生成上限（300回）に達しました。来月また試してください。' },
       { status: 429 }
     )
   }
