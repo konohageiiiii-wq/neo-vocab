@@ -15,22 +15,30 @@ function playAudio(audioUrl: string | null | undefined, word: string, accent: st
     audio.play().catch(() => {})
     return
   }
-  // Web Speech API フォールバック
-  if (typeof window === 'undefined') return
-  if (!window.speechSynthesis) return
-  try {
-    const utterance = new SpeechSynthesisUtterance(word)
-    const langPrefix = accent.split('-')[0]
-    const voices = window.speechSynthesis.getVoices()
-    const voice = voices.find((v) => v.lang === accent)
-      ?? voices.find((v) => v.lang.startsWith(langPrefix))
-      ?? null
-    if (voice) utterance.voice = voice
-    utterance.lang = accent
-    window.speechSynthesis.cancel()
-    window.speechSynthesis.speak(utterance)
-  } catch {
-    // 音声再生非対応環境では無視
+  if (typeof window === 'undefined' || !window.speechSynthesis) return
+  const speak = () => {
+    try {
+      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(word)
+      const langPrefix = accent.split('-')[0]
+      const voices = window.speechSynthesis.getVoices()
+      const voice = voices.find((v) => v.lang === accent)
+        ?? voices.find((v) => v.lang.startsWith(langPrefix))
+        ?? null
+      if (voice) utterance.voice = voice
+      utterance.lang = accent
+      utterance.rate = 0.9
+      window.speechSynthesis.speak(utterance)
+    } catch {}
+  }
+  // voices がまだ読み込まれていない場合は onvoiceschanged で待つ
+  if (window.speechSynthesis.getVoices().length > 0) {
+    speak()
+  } else {
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.onvoiceschanged = null
+      speak()
+    }
   }
 }
 
@@ -149,47 +157,64 @@ export default function StudyClient({
       </div>
 
       {/* カード */}
-      <div className="flex-1 flex items-center justify-center px-4 py-8">
+      <div className="flex-1 flex items-center justify-center px-4 py-6">
         <div className="w-full max-w-lg">
           {/* フラッシュカード本体 */}
           <div
             onClick={() => {
+              // 表面: めくって音声再生 / 裏面: タップで再再生
               if (!flipped) {
                 setFlipped(true)
-                // カードをタップしたときも音声再生（ユーザー操作内）
-                playAudio(card.audio_url, card.word, accent)
               }
+              playAudio(card.audio_url, card.word, accent)
             }}
-            className={`rounded-2xl p-8 min-h-56 flex flex-col items-center justify-center select-none transition-shadow ${!flipped ? 'cursor-pointer hover:shadow-md' : ''}`}
+            className={`rounded-2xl min-h-48 flex flex-col items-center justify-center select-none transition-shadow cursor-pointer hover:shadow-md`}
             style={{
               background: 'var(--lc-surface)',
               border: '1px solid var(--lc-border)',
+              padding: '24px 20px',
             }}
           >
             {!flipped ? (
               /* 表面 */
               <>
-                <p className="text-3xl font-bold mb-2" style={{ color: 'var(--lc-text-primary)' }}>
+                <p
+                  className="font-bold mb-2 text-center leading-snug"
+                  style={{
+                    color: 'var(--lc-text-primary)',
+                    fontSize: card.word.length > 35 ? '1rem'
+                           : card.word.length > 20 ? '1.35rem'
+                           : '1.875rem',
+                  }}
+                >
                   {card.word}
                 </p>
                 {card.reading && (
-                  <p className="text-base" style={{ color: 'var(--lc-text-muted)' }}>
+                  <p className="text-sm text-center" style={{ color: 'var(--lc-text-muted)' }}>
                     {card.reading}
                   </p>
                 )}
-                <p className="text-xs mt-6" style={{ color: 'var(--lc-border-strong)' }}>
+                <p className="text-xs mt-5" style={{ color: 'var(--lc-border-strong)' }}>
                   タップして答えを確認
                 </p>
               </>
             ) : (
               /* 裏面 */
-              <div className="w-full space-y-4">
+              <div className="w-full space-y-3">
                 <div className="text-center">
-                  <p className="text-2xl font-bold" style={{ color: 'var(--lc-text-primary)' }}>
+                  <p
+                    className="font-bold leading-snug"
+                    style={{
+                      color: 'var(--lc-text-primary)',
+                      fontSize: card.word.length > 35 ? '0.9rem'
+                             : card.word.length > 20 ? '1.1rem'
+                             : '1.5rem',
+                    }}
+                  >
                     {card.word}
                   </p>
                   {card.reading && (
-                    <p className="text-sm mt-0.5" style={{ color: 'var(--lc-text-muted)' }}>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--lc-text-muted)' }}>
                       {card.reading}
                     </p>
                   )}
@@ -198,48 +223,43 @@ export default function StudyClient({
                   <img
                     src={card.image_url}
                     alt={`${card.word} のイメージ`}
-                    className="w-full max-h-52 object-cover mx-auto"
+                    className="w-full max-h-44 object-cover mx-auto"
                     style={{ borderRadius: 'var(--radius-md)' }}
                   />
                 )}
-                <div
-                  className="pt-4 space-y-1"
-                  style={{ borderTop: '1px solid var(--lc-border)' }}
-                >
-                  <p className="text-lg" style={{ color: 'var(--lc-text-secondary)' }}>
+                <div className="pt-3" style={{ borderTop: '1px solid var(--lc-border)' }}>
+                  <p className="text-base font-medium" style={{ color: 'var(--lc-text-secondary)' }}>
                     {card.meaning}
                   </p>
                 </div>
                 {card.examples && card.examples.length > 0 && (
-                  <div
-                    className="pt-4 space-y-2"
-                    style={{ borderTop: '1px solid var(--lc-border)' }}
-                  >
-                    {card.examples.map((ex, i) => {
+                  <div className="pt-3 space-y-2" style={{ borderTop: '1px solid var(--lc-border)' }}>
+                    {card.examples.slice(0, 2).map((ex, i) => {
                       const [sentence, translation] = ex.split('\n')
                       return (
                         <div key={i}>
-                          <p className="text-sm leading-relaxed" style={{ color: 'var(--lc-text-muted)' }}>{sentence}</p>
+                          <p className="text-xs leading-relaxed" style={{ color: 'var(--lc-text-secondary)' }}>
+                            {sentence}
+                          </p>
                           {translation && (
-                            <p className="text-xs leading-relaxed mt-0.5" style={{ color: 'var(--lc-text-muted)', opacity: 0.7 }}>{translation}</p>
+                            <p className="text-xs leading-relaxed mt-0.5" style={{ color: 'var(--lc-text-muted)' }}>
+                              {translation}
+                            </p>
                           )}
                         </div>
                       )
                     })}
+                    {card.examples.length > 2 && (
+                      <p className="text-xs" style={{ color: 'var(--lc-text-muted)' }}>
+                        他 {card.examples.length - 2} 文
+                      </p>
+                    )}
                   </div>
                 )}
-                {/* 読み上げボタン */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    playAudio(card.audio_url, card.word, accent)
-                  }}
-                  className="flex items-center gap-1.5 text-xs transition-opacity hover:opacity-70 cursor-pointer"
-                  style={{ color: 'var(--lc-text-muted)' }}
-                >
-                  <span>🔊</span> 読み上げ
-                </button>
+                {/* 再生中ヒント */}
+                <p className="text-xs text-center" style={{ color: 'var(--lc-border-strong)' }}>
+                  タップで再生
+                </p>
               </div>
             )}
           </div>

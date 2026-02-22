@@ -14,10 +14,52 @@ type QuizQuestion = {
   choices: string[]
 }
 
-// 選択状態を「どの問題でどの選択肢を選んだか」で管理する。
-// 文字列だけで管理すると次の問題に同じ意味の選択肢があったとき
-// フィードバック表示が残るバグがあるため、questionIndex も一緒に持つ。
 type AnswerState = { questionIndex: number; choice: string }
+
+// ── サウンドエフェクト ──────────────────────────────────
+function playCorrectSound() {
+  if (typeof window === 'undefined') return
+  try {
+    const ctx = new AudioContext()
+    const notes = [
+      { freq: 783.99, start: 0,    dur: 0.18 },   // G5
+      { freq: 1046.50, start: 0.13, dur: 0.28 },  // C6
+    ]
+    notes.forEach(({ freq, start, dur }) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.value = freq
+      gain.gain.setValueAtTime(0.22, ctx.currentTime + start)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur)
+      osc.start(ctx.currentTime + start)
+      osc.stop(ctx.currentTime + start + dur)
+    })
+    setTimeout(() => ctx.close(), 1000)
+  } catch {}
+}
+
+function playIncorrectSound() {
+  if (typeof window === 'undefined') return
+  try {
+    const ctx = new AudioContext()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(360, ctx.currentTime)
+    osc.frequency.linearRampToValueAtTime(270, ctx.currentTime + 0.28)
+    gain.gain.setValueAtTime(0.15, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.32)
+    osc.start(ctx.currentTime)
+    osc.stop(ctx.currentTime + 0.32)
+    setTimeout(() => ctx.close(), 1000)
+  } catch {}
+}
+// ─────────────────────────────────────────────────────
 
 export default function QuizClient({ questions }: { questions: QuizQuestion[] }) {
   const [index, setIndex] = useState(0)
@@ -27,7 +69,6 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
   const advancing = useRef(false)
 
   const q = questions[index]
-  // 現在の問題の回答のみ参照（別の問題の回答は無視）
   const selected = answer?.questionIndex === index ? answer.choice : null
 
   const handleSelect = useCallback((choice: string) => {
@@ -36,9 +77,13 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
     setAnswer({ questionIndex: index, choice })
 
     const isCorrect = choice === q.correctMeaning
-    if (isCorrect) setScore((s) => s + 1)
+    if (isCorrect) {
+      setScore((s) => s + 1)
+      playCorrectSound()
+    } else {
+      playIncorrectSound()
+    }
 
-    // SM-2 連携（成功→easy / 失敗→hard）
     submitReview(q.cardId, q.deckId, isCorrect ? 'easy' : 'hard', isCorrect, 'flashcard').catch(() => {})
 
     setTimeout(() => {
@@ -89,13 +134,7 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
             className="text-base font-semibold mt-3 mb-8"
             style={{ color: excellent ? 'var(--lc-success)' : 'var(--lc-text-secondary)' }}
           >
-            {pct === 100
-              ? '満点！完璧です！'
-              : pct >= 80
-              ? 'よくできました！'
-              : pct >= 50
-              ? 'もう少し！'
-              : '復習を続けましょう'}
+            {pct === 100 ? '満点！完璧です！' : pct >= 80 ? 'よくできました！' : pct >= 50 ? 'もう少し！' : '復習を続けましょう'}
           </p>
           <div className="flex flex-col gap-3">
             <button
@@ -108,11 +147,7 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
             <Link
               href="/dashboard"
               className="text-sm font-medium text-center px-5 py-3 transition-colors hover:opacity-70"
-              style={{
-                border: '1px solid var(--lc-border)',
-                color: 'var(--lc-text-secondary)',
-                borderRadius: 'var(--radius-md)',
-              }}
+              style={{ border: '1px solid var(--lc-border)', color: 'var(--lc-text-secondary)', borderRadius: 'var(--radius-md)' }}
             >
               ← ダッシュボードへ
             </Link>
@@ -129,11 +164,7 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
         className="px-4 py-3 flex items-center justify-between"
         style={{ background: 'var(--lc-surface)', borderBottom: '1px solid var(--lc-border)' }}
       >
-        <Link
-          href="/dashboard"
-          className="text-sm transition-colors hover:opacity-70"
-          style={{ color: 'var(--lc-text-muted)' }}
-        >
+        <Link href="/dashboard" className="text-sm transition-colors hover:opacity-70" style={{ color: 'var(--lc-text-muted)' }}>
           ← ダッシュボード
         </Link>
         <div className="flex items-center gap-3">
@@ -153,10 +184,7 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
       <div className="h-1" style={{ background: 'var(--lc-border)' }}>
         <div
           className="h-1 transition-all duration-300"
-          style={{
-            width: `${(index / questions.length) * 100}%`,
-            background: '#F59E0B',
-          }}
+          style={{ width: `${(index / questions.length) * 100}%`, background: '#F59E0B' }}
         />
       </div>
 
@@ -172,23 +200,24 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
               borderRadius: 'var(--radius-xl)',
             }}
           >
-            <p
-              className="text-xs font-semibold uppercase tracking-widest mb-4"
-              style={{ color: 'var(--lc-text-muted)' }}
-            >
+            <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--lc-text-muted)' }}>
               この単語の意味は？
             </p>
-            <p className="text-3xl font-bold" style={{ color: 'var(--lc-text-primary)' }}>
+            <p
+              className="font-bold leading-snug"
+              style={{
+                color: 'var(--lc-text-primary)',
+                fontSize: q.word.length > 30 ? '1.1rem' : q.word.length > 15 ? '1.5rem' : '1.875rem',
+              }}
+            >
               {q.word}
             </p>
             {q.reading && (
-              <p className="text-sm mt-2" style={{ color: 'var(--lc-text-muted)' }}>
-                {q.reading}
-              </p>
+              <p className="text-sm mt-2" style={{ color: 'var(--lc-text-muted)' }}>{q.reading}</p>
             )}
           </div>
 
-          {/* 選択肢: key={index} で問題切替時にボタンを強制再マウント */}
+          {/* 選択肢 */}
           <div key={index} className="grid grid-cols-1 gap-2.5">
             {q.choices.map((choice, i) => {
               const isSelected = selected === choice
@@ -197,15 +226,8 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
               let border = '1px solid var(--lc-border)'
               let color = 'var(--lc-text-primary)'
               if (selected !== null) {
-                if (isCorrect) {
-                  bg = 'var(--lc-success-light)'
-                  border = '2px solid var(--lc-success)'
-                  color = 'var(--lc-success)'
-                } else if (isSelected) {
-                  bg = 'var(--lc-danger-light)'
-                  border = '2px solid var(--lc-danger)'
-                  color = 'var(--lc-danger)'
-                }
+                if (isCorrect)       { bg = 'var(--lc-success-light)'; border = '2px solid var(--lc-success)'; color = 'var(--lc-success)' }
+                else if (isSelected) { bg = 'var(--lc-danger-light)';  border = '2px solid var(--lc-danger)';  color = 'var(--lc-danger)' }
               }
               return (
                 <button
@@ -213,21 +235,12 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
                   onClick={() => handleSelect(choice)}
                   disabled={selected !== null}
                   className="w-full px-5 py-4 text-left text-sm font-medium transition-all disabled:cursor-default"
-                  style={{
-                    background: bg,
-                    border,
-                    borderRadius: 'var(--radius-lg)',
-                    color,
-                  }}
+                  style={{ background: bg, border, borderRadius: 'var(--radius-lg)', color }}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="leading-snug">{choice}</span>
-                    {selected !== null && isCorrect && (
-                      <CheckCircle2 size={16} style={{ color: 'var(--lc-success)', flexShrink: 0 }} />
-                    )}
-                    {selected !== null && isSelected && !isCorrect && (
-                      <XCircle size={16} style={{ color: 'var(--lc-danger)', flexShrink: 0 }} />
-                    )}
+                    {selected !== null && isCorrect  && <CheckCircle2 size={16} style={{ color: 'var(--lc-success)', flexShrink: 0 }} />}
+                    {selected !== null && isSelected && !isCorrect && <XCircle size={16} style={{ color: 'var(--lc-danger)', flexShrink: 0 }} />}
                   </div>
                 </button>
               )
