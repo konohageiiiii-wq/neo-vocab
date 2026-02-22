@@ -10,9 +10,28 @@ import {
 import HeroCarousel from '@/components/HeroCarousel'
 import AudioDemo from '@/components/AudioDemo'
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://neo-vocab.vercel.app'
+
 export const metadata: Metadata = {
-  title: 'NeoVocab — AI×間隔反復で語学学習',
-  description: 'Claude AIが例文・画像を自動生成。SM-2アルゴリズムで英語・スペイン語を科学的に学習。完全無料。',
+  title: 'NeoVocab — AI×間隔反復で英語・スペイン語を科学的に学習',
+  description: 'AIが例文・画像・音声を自動生成。SM-2間隔反復アルゴリズムで英語・スペイン語を効率学習。Google Neural2音声付き。完全無料。',
+  metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'NeoVocab — AI×間隔反復で語学学習',
+    description: 'AIが例文・画像を自動生成。SM-2で効率学習。完全無料。',
+    url: SITE_URL,
+    siteName: 'NeoVocab',
+    locale: 'ja_JP',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'NeoVocab — AI×間隔反復で語学学習',
+    description: 'AIが例文・画像を自動生成。SM-2で効率学習。完全無料。',
+  },
 }
 
 // ─── 共通スタイルヘルパー ───────────────────────
