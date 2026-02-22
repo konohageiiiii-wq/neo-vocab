@@ -53,8 +53,14 @@ export default async function LandingPage() {
       </nav>
 
       {/* ═══ Hero ═══════════════════════════════════════════ */}
-      <section style={{ background: DARK }}>
-        <div className="max-w-6xl mx-auto px-6 py-20 lg:py-32 grid lg:grid-cols-2 gap-16 items-center">
+      <section style={{ background: DARK, position: 'relative', overflow: 'hidden' }}>
+
+        {/* Background carousel — mobile only */}
+        <div className="lg:hidden absolute inset-0 pointer-events-none opacity-[0.13]">
+          <HeroCarousel />
+        </div>
+
+        <div className="max-w-6xl mx-auto px-6 py-20 lg:py-32 grid lg:grid-cols-2 gap-16 items-center relative z-10">
 
           {/* Left */}
           <div>
