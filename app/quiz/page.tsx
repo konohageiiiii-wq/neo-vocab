@@ -26,7 +26,9 @@ export default async function QuizPage() {
   const questionCards = shuffle(cards).slice(0, 10)
 
   const questions = questionCards.map((card) => {
-    const wrongChoices = shuffle(cards.filter((c) => c.id !== card.id))
+    // id が異なるだけでなく meaning も異なるカードのみ wrong choice にする
+    // （同じ意味のカードが混入すると正解が2つ表示されるバグの原因になる）
+    const wrongChoices = shuffle(cards.filter((c) => c.id !== card.id && c.meaning !== card.meaning))
       .slice(0, 3)
       .map((c) => c.meaning)
     const choices = shuffle([card.meaning, ...wrongChoices])

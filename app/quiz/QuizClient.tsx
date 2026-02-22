@@ -188,9 +188,9 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
             )}
           </div>
 
-          {/* 選択肢 */}
-          <div className="grid grid-cols-1 gap-2.5">
-            {q.choices.map((choice) => {
+          {/* 選択肢: key={index} で問題切替時にボタンを強制再マウント */}
+          <div key={index} className="grid grid-cols-1 gap-2.5">
+            {q.choices.map((choice, i) => {
               const isSelected = selected === choice
               const isCorrect = choice === q.correctMeaning
               let bg = 'var(--lc-surface)'
@@ -209,7 +209,7 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
               }
               return (
                 <button
-                  key={choice}
+                  key={i}
                   onClick={() => handleSelect(choice)}
                   disabled={selected !== null}
                   className="w-full px-5 py-4 text-left text-sm font-medium transition-all disabled:cursor-default"
