@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { signIn, signUp, signInWithGoogle } from './actions'
 import { Sparkles, Brain, Volume2, AlertCircle, MailCheck } from 'lucide-react'
@@ -12,7 +12,7 @@ const OAUTH_ERROR_MESSAGES: Record<string, string> = {
   no_code:      'ログインに失敗しました。もう一度お試しください。',
 }
 
-export default function AuthPage() {
+function AuthPageContent() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const searchParams = useSearchParams()
 
@@ -369,5 +369,13 @@ export default function AuthPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense>
+      <AuthPageContent />
+    </Suspense>
   )
 }
