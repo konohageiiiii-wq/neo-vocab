@@ -79,6 +79,10 @@ export default async function LandingPage() {
               <span style={{ color: '#818CF8' }}>科学的に。</span>
             </h1>
 
+            <p className="text-xl font-semibold mb-6" style={{ color: '#CBD5E1' }}>
+              自分だけのスマートなカスタムフラッシュカード
+            </p>
+
             <p className="text-lg leading-relaxed mb-10 max-w-md" style={{ color: DARK_MUTED }}>
               AIが例文・画像を自動生成。SM-2アルゴリズムが最適なタイミングで
               復習を促し、4択テストで定着を確認します。
