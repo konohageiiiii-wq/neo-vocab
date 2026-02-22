@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { Tables } from '@/types/database.types'
 import { submitReview } from '@/lib/actions/review-actions'
@@ -58,15 +58,6 @@ export default function StudyClient({
 
   const card = cards[index]
 
-  // 最初のカードを自動再生（マウント時）
-  const mountedRef = useRef(false)
-  useEffect(() => {
-    if (!mountedRef.current && card) {
-      mountedRef.current = true
-      playAudio(card.audio_url, card.word, accent)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const handleRate = useCallback(async (rating: Rating) => {
     if (submitting) return
@@ -82,8 +73,6 @@ export default function StudyClient({
     } else {
       setIndex(nextIndex)
       setFlipped(false)
-      // 次のカードの音声をユーザー操作内で再生（モバイル制限を回避）
-      playAudio(cards[nextIndex].audio_url, cards[nextIndex].word, accent)
     }
     setSubmitting(false)
   }, [submitting, card, index, cards, accent])
