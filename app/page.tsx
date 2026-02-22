@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     title: 'NeoVocab — AI×間隔反復で語学学習',
     description: 'AIが例文・画像を自動生成。SM-2で効率学習。完全無料。',
   },
+  verification: {
+    google: 'ABJHkp0aGNGnUIc7kHrQMcY0bNWpUMfJNe38BeY0p4o',
+  },
 }
 
 // ─── 共通スタイルヘルパー ───────────────────────
