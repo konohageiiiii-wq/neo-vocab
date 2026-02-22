@@ -9,7 +9,6 @@ const LANGUAGE_NAME: Record<string, string> = {
   es: 'Spanish',
 }
 
-const VALID_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 const VALID_LANGUAGES = ['en', 'es']
 
 // コスト根拠: claude-sonnet-4-5 ($3/$15 per M tokens)
@@ -43,7 +42,7 @@ export async function POST(request: Request) {
   }
   // ───────────────────────────────────────────────────
 
-  const { word, part_of_speech, level, language } = await request.json()
+  const { word, language } = await request.json()
 
   // 入力バリデーション
   if (!word?.trim() || !language) {
@@ -55,9 +54,6 @@ export async function POST(request: Request) {
   if (!VALID_LANGUAGES.includes(language)) {
     return NextResponse.json({ error: 'invalid language' }, { status: 400 })
   }
-  if (level && !VALID_LEVELS.includes(level)) {
-    return NextResponse.json({ error: 'invalid level' }, { status: 400 })
-  }
 
   // 使用記録を先に挿入（Claude API 呼び出し前にカウント）
   await supabase.from('api_usage').insert({
@@ -66,21 +62,14 @@ export async function POST(request: Request) {
   })
 
   const langName = LANGUAGE_NAME[language] ?? language
-  // part_of_speech はプロンプトに直接埋め込まれるため英数字・スペース・ハイフンのみ許可
-  const sanitizedPos = part_of_speech
-    ? part_of_speech.replace(/[^a-zA-Z0-9\s\-]/g, '').trim().slice(0, 30)
-    : ''
-  const posHint   = sanitizedPos ? ` (${sanitizedPos})` : ''
-  const levelHint = level ? ` at CEFR level ${level}` : ''
 
   // ユーザー入力を XML タグで囲みプロンプトインジェクションを防止
-  const prompt = `Generate exactly 1 natural example sentence in ${langName} using the word below${posHint}${levelHint}, and provide its Japanese translation.
+  const prompt = `Generate exactly 1 natural example sentence in ${langName} using the word below, and provide its Japanese translation.
 
 <word>${word}</word>
 
 Requirements:
 - The sentence must use the word naturally
-- The sentence should be appropriate for CEFR level ${level ?? 'B1'}
 - Return ONLY a JSON array with 1 object containing "sentence" and "translation" keys, no explanation
 - Example format: [{"sentence": "Sentence here.", "translation": "日本語訳"}]`
 

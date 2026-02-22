@@ -8,14 +8,6 @@ import { deleteCard } from '@/lib/actions/card-actions'
 
 type Card = Tables<'cards'>
 
-const LEVEL_COLOR: Record<string, string> = {
-  A1: 'bg-green-100 text-green-700',
-  A2: 'bg-green-100 text-green-700',
-  B1: 'bg-yellow-100 text-yellow-700',
-  B2: 'bg-yellow-100 text-yellow-700',
-  C1: 'bg-red-100 text-red-700',
-  C2: 'bg-red-100 text-red-700',
-}
 
 export default function CardList({ cards, isOwner, deckId }: { cards: Card[]; isOwner: boolean; deckId: string }) {
   const [selectedCard, setSelectedCard] = useState<Card | null>(null)
@@ -85,18 +77,10 @@ export default function CardList({ cards, isOwner, deckId }: { cards: Card[]; is
                   {card.reading && (
                     <span className="text-sm text-gray-400">[{card.reading}]</span>
                   )}
-                  {card.part_of_speech && (
-                    <span className="text-xs text-gray-400 italic">{card.part_of_speech}</span>
-                  )}
                 </div>
                 <p className="text-sm text-gray-600">{card.meaning}</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                {card.level && (
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LEVEL_COLOR[card.level] ?? 'bg-gray-100 text-gray-600'}`}>
-                    {card.level}
-                  </span>
-                )}
                 {isOwner && (
                   <>
                     <Link
@@ -205,18 +189,6 @@ export default function CardList({ cards, isOwner, deckId }: { cards: Card[]; is
                 />
               )}
 
-              <div className="flex items-center gap-2">
-                {selectedCard.part_of_speech && (
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full italic">
-                    {selectedCard.part_of_speech}
-                  </span>
-                )}
-                {selectedCard.level && (
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LEVEL_COLOR[selectedCard.level] ?? 'bg-gray-100 text-gray-600'}`}>
-                    {selectedCard.level}
-                  </span>
-                )}
-              </div>
 
               <p className="text-base text-gray-700 leading-relaxed">{selectedCard.meaning}</p>
 

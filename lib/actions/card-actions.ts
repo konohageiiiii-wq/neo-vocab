@@ -98,8 +98,6 @@ export async function createCard(
   const word = formData.get('word') as string
   const reading = formData.get('reading') as string
   const meaning = formData.get('meaning') as string
-  const part_of_speech = formData.get('part_of_speech') as string
-  const level = formData.get('level') as string
 
   // デッキ所有権確認 + accent / language 取得
   const { data: deck } = await supabase
@@ -127,8 +125,6 @@ export async function createCard(
     word,
     reading: reading || null,
     meaning,
-    part_of_speech: part_of_speech || null,
-    level: level || null,
     examples,
     memo: memo || null,
     image_url,
