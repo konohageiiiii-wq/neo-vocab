@@ -11,22 +11,25 @@ function sanitizeImageUrl(url: string | null | undefined): string | null {
 }
 
 // Google Cloud TTS Neural2 voice mapping (BCP-47 accent → voice)
+// 注: スペイン語の Neural2/Wavenet は es-ES・es-US のみ提供。
+//     ラテンアメリカ系 (es-MX/AR/CO) は Neural2 非対応のため es-US-Neural2-B を使用。
 const VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
   'en-US': { languageCode: 'en-US', name: 'en-US-Neural2-C' },
   'en-GB': { languageCode: 'en-GB', name: 'en-GB-Neural2-C' },
   'en-AU': { languageCode: 'en-AU', name: 'en-AU-Neural2-C' },
   'es-ES': { languageCode: 'es-ES', name: 'es-ES-Neural2-A' },
-  'es-MX': { languageCode: 'es-MX', name: 'es-MX-Neural2-A' },
-  'es-AR': { languageCode: 'es-AR', name: 'es-AR-Neural2-A' },
-  'es-CO': { languageCode: 'es-CO', name: 'es-CO-Neural2-A' },
-  // es-US は後方互換（旧「ラテンアメリカ」設定のデッキ用）
-  'es-US': { languageCode: 'es-US', name: 'es-US-Wavenet-B' },
+  // ラテンアメリカ各国 → es-US-Neural2-B（最も近い Neural2 音声）
+  'es-MX': { languageCode: 'es-US', name: 'es-US-Neural2-B' },
+  'es-AR': { languageCode: 'es-US', name: 'es-US-Neural2-B' },
+  'es-CO': { languageCode: 'es-US', name: 'es-US-Neural2-B' },
+  // es-US は後方互換（旧「ラテンアメリカ」設定のデッキ用）→ Neural2 にアップグレード
+  'es-US': { languageCode: 'es-US', name: 'es-US-Neural2-B' },
 }
 
 // language（'en'|'es'）単体でのフォールバックボイス
 const LANGUAGE_FALLBACK: Record<string, { languageCode: string; name: string }> = {
   en: { languageCode: 'en-US', name: 'en-US-Neural2-C' },
-  es: { languageCode: 'es-MX', name: 'es-MX-Neural2-A' },
+  es: { languageCode: 'es-US', name: 'es-US-Neural2-B' },
 }
 
 async function generateAudio(
