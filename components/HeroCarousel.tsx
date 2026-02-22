@@ -194,7 +194,7 @@ export default function HeroCarousel() {
         height: '560px',
         overflow: 'hidden',
         position: 'relative',
-        width: '330px',
+        width: '100%',
       }}
     >
       {/* top / bottom gradient fade */}

@@ -116,7 +116,7 @@ export default async function LandingPage() {
           </div>
 
           {/* Right: Animated card carousel */}
-          <div className="hidden lg:flex justify-center">
+          <div className="hidden lg:block w-full">
             <HeroCarousel />
           </div>
         </div>
