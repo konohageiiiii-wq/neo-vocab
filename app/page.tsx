@@ -289,10 +289,10 @@ export default async function LandingPage() {
             {/* 2×2 card grid mockup */}
             <div className="flex-1 grid grid-cols-2 gap-3 max-w-sm w-full">
               {[
-                { img: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=400&h=400&fit=crop&q=80', word: 'persevere' },
-                { img: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=400&h=400&fit=crop&q=80', word: 'eloquent' },
-                { img: 'https://images.unsplash.com/photo-1516728778615-2d590ea1855e?w=400&h=400&fit=crop&q=80', word: 'nostalgia' },
-                { img: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=400&fit=crop&q=80', word: 'resilient' },
+                { img: '/lp/persevere.jpg', word: 'persevere' },
+                { img: '/lp/eloquent.jpg',  word: 'eloquent' },
+                { img: '/lp/nostalgia.jpg', word: 'nostalgia' },
+                { img: '/lp/resilient.jpg', word: 'resilient' },
               ].map(({ img, word }) => (
                 <div
                   key={word}
