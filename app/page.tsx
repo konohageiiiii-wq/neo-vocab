@@ -80,7 +80,7 @@ export default async function LandingPage() {
             </h1>
 
             <p className="text-lg leading-relaxed mb-10 max-w-md" style={{ color: DARK_MUTED }}>
-              Claude AIが例文・画像を自動生成。SM-2アルゴリズムが最適なタイミングで
+              AIが例文・画像を自動生成。SM-2アルゴリズムが最適なタイミングで
               復習を促し、4択テストで定着を確認します。
             </p>
 
@@ -266,7 +266,7 @@ export default async function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 py-20">
           <div className="flex flex-col lg:flex-row items-center gap-16">
             <div className="flex-1">
-              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#8B5CF6' }}>
+              <p className="text-xl font-bold mb-3" style={{ color: '#8B5CF6' }}>
                 最大の差別化機能
               </p>
               <h2 className="text-3xl font-black mb-5" style={{ color: 'var(--lc-text-primary)' }}>
