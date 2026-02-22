@@ -8,6 +8,7 @@ import {
   Image as ImageIcon, TrendingUp,
 } from 'lucide-react'
 import HeroCarousel from '@/components/HeroCarousel'
+import AudioDemo from '@/components/AudioDemo'
 
 export const metadata: Metadata = {
   title: 'NeoVocab — AI×間隔反復で語学学習',
@@ -543,45 +544,9 @@ export default async function LandingPage() {
                 ))}
               </div>
             </div>
-            {/* Audio card mockup */}
+            {/* Audio card — interactive demo */}
             <div className="flex-1 max-w-sm w-full">
-              <div
-                className="p-8 text-center"
-                style={{
-                  background: 'var(--lc-surface)',
-                  border: '1px solid var(--lc-border)',
-                  borderRadius: 'var(--radius-xl)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.06)',
-                }}
-              >
-                <p className="text-3xl font-black mb-1" style={{ color: 'var(--lc-text-primary)' }}>
-                  persevere
-                </p>
-                <p className="text-sm mb-8" style={{ color: 'var(--lc-text-muted)' }}>/pərsɪˈvɪr/</p>
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 cursor-pointer transition-opacity hover:opacity-80"
-                  style={{ background: 'linear-gradient(135deg, #0EA5E9, #06B6D4)' }}
-                >
-                  <Volume2 size={28} style={{ color: 'white' }} />
-                </div>
-                <p className="text-xs" style={{ color: 'var(--lc-text-muted)' }}>カードをめくると自動再生</p>
-                <div className="flex items-center justify-center gap-2 mt-4">
-                  {['米', '英', '豪'].map((label) => (
-                    <span
-                      key={label}
-                      className="text-xs px-2 py-1"
-                      style={{
-                        background: 'var(--lc-bg)',
-                        border: '1px solid var(--lc-border)',
-                        borderRadius: 'var(--radius-sm)',
-                        color: 'var(--lc-text-muted)',
-                      }}
-                    >
-                      {label}
-                    </span>
-                  ))}
-                </div>
-              </div>
+              <AudioDemo />
             </div>
           </div>
         </div>
