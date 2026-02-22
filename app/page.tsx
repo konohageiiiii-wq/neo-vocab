@@ -7,6 +7,7 @@ import {
   ChevronRight, ArrowRight, Check, X, RotateCcw, Plus, CheckCircle2,
   Image as ImageIcon, TrendingUp,
 } from 'lucide-react'
+import HeroCarousel from '@/components/HeroCarousel'
 
 export const metadata: Metadata = {
   title: 'NeoVocab — AI×間隔反復で語学学習',
@@ -114,71 +115,9 @@ export default async function LandingPage() {
             </p>
           </div>
 
-          {/* Right: Card mockup */}
+          {/* Right: Animated card carousel */}
           <div className="hidden lg:flex justify-center">
-            <div
-              className="w-72 shadow-2xl overflow-hidden"
-              style={{
-                background: 'var(--lc-surface)',
-                borderRadius: 'var(--radius-xl)',
-                border: DARK_BORDER,
-              }}
-            >
-              {/* AI generated image area */}
-              <div
-                className="w-full"
-                style={{
-                  height: '160px',
-                  background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%)',
-                  position: 'relative',
-                }}
-              >
-                <span
-                  className="absolute bottom-2 right-2 text-xs font-semibold px-2 py-0.5"
-                  style={{
-                    background: 'rgba(0,0,0,0.4)',
-                    color: 'white',
-                    borderRadius: 'var(--radius-sm)',
-                  }}
-                >
-                  AI生成
-                </span>
-              </div>
-              <div className="p-5">
-                <p className="text-2xl font-black mb-0.5" style={{ color: 'var(--lc-text-primary)' }}>
-                  persevere
-                </p>
-                <p className="text-xs mb-3" style={{ color: 'var(--lc-text-muted)' }}>/pərsɪˈvɪr/</p>
-                <div
-                  className="p-3 mb-4 text-sm leading-relaxed"
-                  style={{ background: 'var(--lc-bg)', borderRadius: 'var(--radius-md)' }}
-                >
-                  <p style={{ color: 'var(--lc-text-secondary)' }}>
-                    She continued to{' '}
-                    <strong style={{ color: 'var(--lc-accent)' }}>persevere</strong>
-                    {' '}despite every obstacle.
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: 'var(--lc-text-muted)' }}>
-                    あらゆる障害にもかかわらず、彼女は粘り強く続けた。
-                  </p>
-                </div>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {(['難しい', '普通', '簡単'] as const).map((label, i) => (
-                    <button
-                      key={label}
-                      className="py-2 text-xs font-semibold"
-                      style={{
-                        borderRadius: 'var(--radius-sm)',
-                        background: i === 0 ? 'var(--lc-danger-light)' : i === 1 ? '#FFF7ED' : 'var(--lc-success-light)',
-                        color: i === 0 ? 'var(--lc-danger)' : i === 1 ? '#D97706' : 'var(--lc-success)',
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <HeroCarousel />
           </div>
         </div>
       </section>
