@@ -14,7 +14,9 @@ const ACCENT_OPTIONS: Record<string, { value: string; label: string }[]> = {
   ],
   es: [
     { value: 'es-ES', label: '🇪🇸 スペイン (es-ES)' },
-    { value: 'es-US', label: '🌎 ラテンアメリカ (es-US)' },
+    { value: 'es-MX', label: '🇲🇽 メキシコ (es-MX)' },
+    { value: 'es-AR', label: '🇦🇷 アルゼンチン (es-AR)' },
+    { value: 'es-CO', label: '🇨🇴 コロンビア (es-CO)' },
   ],
 }
 
