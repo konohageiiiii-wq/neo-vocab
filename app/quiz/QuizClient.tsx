@@ -14,19 +14,26 @@ type QuizQuestion = {
   choices: string[]
 }
 
+// 選択状態を「どの問題でどの選択肢を選んだか」で管理する。
+// 文字列だけで管理すると次の問題に同じ意味の選択肢があったとき
+// フィードバック表示が残るバグがあるため、questionIndex も一緒に持つ。
+type AnswerState = { questionIndex: number; choice: string }
+
 export default function QuizClient({ questions }: { questions: QuizQuestion[] }) {
   const [index, setIndex] = useState(0)
-  const [selected, setSelected] = useState<string | null>(null)
+  const [answer, setAnswer] = useState<AnswerState | null>(null)
   const [score, setScore] = useState(0)
   const [done, setDone] = useState(false)
   const advancing = useRef(false)
 
   const q = questions[index]
+  // 現在の問題の回答のみ参照（別の問題の回答は無視）
+  const selected = answer?.questionIndex === index ? answer.choice : null
 
   const handleSelect = useCallback((choice: string) => {
-    if (selected !== null || advancing.current) return
+    if (answer?.questionIndex === index || advancing.current) return
     advancing.current = true
-    setSelected(choice)
+    setAnswer({ questionIndex: index, choice })
 
     const isCorrect = choice === q.correctMeaning
     if (isCorrect) setScore((s) => s + 1)
@@ -40,15 +47,14 @@ export default function QuizClient({ questions }: { questions: QuizQuestion[] })
         setDone(true)
       } else {
         setIndex(nextIndex)
-        setSelected(null)
       }
       advancing.current = false
     }, 1200)
-  }, [selected, q, index, questions])
+  }, [answer, q, index, questions])
 
   const handleRestart = () => {
     setIndex(0)
-    setSelected(null)
+    setAnswer(null)
     setScore(0)
     setDone(false)
     advancing.current = false
