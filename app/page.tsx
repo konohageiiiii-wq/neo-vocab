@@ -289,11 +289,11 @@ export default async function LandingPage() {
             {/* 2×2 card grid mockup */}
             <div className="flex-1 grid grid-cols-2 gap-3 max-w-sm w-full">
               {[
-                { gradient: 'linear-gradient(135deg, #6366F1, #8B5CF6)', word: 'persevere' },
-                { gradient: 'linear-gradient(135deg, #0EA5E9, #06B6D4)', word: 'eloquent' },
-                { gradient: 'linear-gradient(135deg, #F59E0B, #EF4444)', word: 'nostalgia' },
-                { gradient: 'linear-gradient(135deg, #10B981, #059669)', word: 'resilient' },
-              ].map(({ gradient, word }) => (
+                { img: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=400&h=400&fit=crop&q=80', word: 'persevere' },
+                { img: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=400&h=400&fit=crop&q=80', word: 'eloquent' },
+                { img: 'https://images.unsplash.com/photo-1516728778615-2d590ea1855e?w=400&h=400&fit=crop&q=80', word: 'nostalgia' },
+                { img: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=400&fit=crop&q=80', word: 'resilient' },
+              ].map(({ img, word }) => (
                 <div
                   key={word}
                   className="overflow-hidden"
@@ -303,7 +303,8 @@ export default async function LandingPage() {
                     borderRadius: 'var(--radius-lg)',
                   }}
                 >
-                  <div style={{ height: '80px', background: gradient }} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={img} alt={word} className="w-full object-cover" style={{ height: '100px' }} />
                   <div className="px-3 py-2">
                     <p className="text-sm font-bold" style={{ color: 'var(--lc-text-primary)' }}>{word}</p>
                   </div>
