@@ -18,18 +18,16 @@ export default function AuthPage() {
 
   const [signInState, signInAction, signInPending] = useActionState(signIn, initialState)
   const [signUpState, signUpAction, signUpPending] = useActionState(signUp, initialState)
-  const [googleState, googleAction, googlePending] = useActionState(signInWithGoogle, initialState)
-
   const isSignIn = mode === 'signin'
   const action = isSignIn ? signInAction : signUpAction
   const pending = isSignIn ? signInPending : signUpPending
   const error = isSignIn ? signInState.error : signUpState.error
   const successMessage = !isSignIn ? signUpState.message : null
 
-  // URL パラメータ（OAuth コールバックからのエラー・確認完了）または Google アクションのエラー
+  // URL パラメータ（OAuth コールバックからのエラー・確認完了）
   const urlError = searchParams.get('error')
   const urlConfirmed = searchParams.get('confirmed') === 'true'
-  const googleError = googleState.error ?? (urlError ? OAUTH_ERROR_MESSAGES[urlError] ?? 'ログインに失敗しました。' : null)
+  const googleError = urlError ? OAUTH_ERROR_MESSAGES[urlError] ?? 'ログインに失敗しました。' : null
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -205,11 +203,10 @@ export default function AuthPage() {
           </div>
 
           {/* Googleログイン */}
-          <form action={googleAction} className="mb-3">
+          <form action={signInWithGoogle} className="mb-3">
             <button
               type="submit"
-              disabled={googlePending}
-              className="w-full py-3.5 flex items-center justify-center gap-3 text-base font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3.5 flex items-center justify-center gap-3 text-base font-semibold transition-all duration-200"
               style={{
                 background: 'var(--lc-surface)',
                 border: '1px solid var(--lc-border)',
@@ -223,7 +220,7 @@ export default function AuthPage() {
                 <path d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/>
                 <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
               </svg>
-              {googlePending ? '処理中...' : 'Googleでログイン'}
+              Googleでログイン
             </button>
           </form>
 

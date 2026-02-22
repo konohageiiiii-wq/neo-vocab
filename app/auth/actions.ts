@@ -59,10 +59,7 @@ export async function signOut() {
   redirect('/auth')
 }
 
-export async function signInWithGoogle(
-  _prevState: { error: string | null; message?: string | null },
-  _formData: FormData
-): Promise<{ error: string | null; message?: string | null }> {
+export async function signInWithGoogle(): Promise<void> {
   const supabase = await createClient()
 
   if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_SITE_URL) {
@@ -79,7 +76,7 @@ export async function signInWithGoogle(
 
   if (error) {
     console.error('[signInWithGoogle]', error.message)
-    return { error: 'Googleログインに失敗しました。もう一度お試しください。' }
+    redirect('/auth?error=oauth_failed')
   }
 
   redirect(data.url)
