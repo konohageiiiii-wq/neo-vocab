@@ -401,7 +401,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen" style={{ background: 'var(--lc-bg)' }}>
       {/* ─── Header ─── */}
       <header style={{ background: 'var(--lc-surface)', borderBottom: '1px solid var(--lc-border)' }}>
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <span className="text-sm font-bold tracking-tight" style={{ color: 'var(--lc-text-primary)' }}>
             NeoVocab
           </span>
@@ -424,7 +424,7 @@ export default async function DashboardPage() {
             <form action={signOut}>
               <button
                 type="submit"
-                className="text-sm px-3 py-1.5 rounded-lg cursor-pointer transition-colors hover:bg-gray-100"
+                className="hidden sm:block text-sm px-3 py-1.5 rounded-lg cursor-pointer transition-colors hover:bg-gray-100"
                 style={{ color: 'var(--lc-text-muted)' }}
               >
                 ログアウト
@@ -434,42 +434,42 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-8 space-y-5">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-5 sm:py-8 space-y-4">
 
         {/* ─── ウェルカムバナー ─── */}
         <div
-          className="rounded-xl px-6 py-5"
+          className="rounded-xl px-4 py-4 sm:px-6 sm:py-5"
           style={{ background: 'linear-gradient(135deg, var(--lc-accent) 0%, #7C3AED 100%)' }}
         >
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div>
-              <p className="text-sm font-medium mb-0.5" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-medium mb-0.5" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 おかえりなさい
               </p>
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-xl font-bold text-white">{userDisplayName}</h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-base sm:text-xl font-bold text-white leading-tight">{userDisplayName}</h1>
                 {streak > 0 && (
                   <span
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full"
+                    className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full"
                     style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}
                   >
-                    <Flame size={11} style={{ color: '#FCD34D' }} />
-                    {streak}日連続
+                    <Flame size={10} style={{ color: '#FCD34D' }} />
+                    {streak}日
                   </span>
                 )}
                 {dueCount === 0 && totalCards > 0 && (
                   <span
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full"
+                    className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full"
                     style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}
                   >
-                    <CheckCircle2 size={11} />
-                    今日の復習完了
+                    <CheckCircle2 size={10} />
+                    完了
                   </span>
                 )}
               </div>
               {dueCount > 0 && (
-                <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.75)' }}>
-                  {dueCount}枚の復習が待っています
+                <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                  {dueCount}枚の復習待ち
                 </p>
               )}
             </div>
@@ -478,7 +478,7 @@ export default async function DashboardPage() {
               {canResume && lastStudiedDeck && (
                 <Link
                   href={`/decks/${lastStudiedDeckId}/study`}
-                  className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                  className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg transition-colors"
                   style={{
                     background: 'rgba(255,255,255,0.15)',
                     color: 'white',
@@ -492,15 +492,15 @@ export default async function DashboardPage() {
               {dueCount > 0 ? (
                 <Link
                   href="/study"
-                  className="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-lg transition-opacity hover:opacity-90"
+                  className="inline-flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-lg transition-opacity hover:opacity-90"
                   style={{ background: 'white', color: 'var(--lc-accent)', borderRadius: 'var(--radius-md)' }}
                 >
                   今すぐ復習
-                  <ArrowRight size={14} />
+                  <ArrowRight size={13} />
                 </Link>
               ) : nextReviewIso ? (
                 <div
-                  className="text-sm px-4 py-2.5 rounded-lg"
+                  className="text-xs px-3 py-2 rounded-lg"
                   style={{ background: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: 'var(--radius-md)' }}
                 >
                   次は{formatTimeUntil(nextReviewIso)}
@@ -508,10 +508,10 @@ export default async function DashboardPage() {
               ) : (
                 <Link
                   href="/decks/new"
-                  className="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-lg transition-opacity hover:opacity-90"
+                  className="inline-flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-lg transition-opacity hover:opacity-90"
                   style={{ background: 'white', color: 'var(--lc-accent)', borderRadius: 'var(--radius-md)' }}
                 >
-                  <Plus size={14} />
+                  <Plus size={13} />
                   デッキを作る
                 </Link>
               )}
@@ -562,33 +562,36 @@ export default async function DashboardPage() {
         {/* ─── 小テスト ─── */}
         {totalCards >= 4 && (
           <div
-            className="rounded-xl px-6 py-5"
-            style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)' }}
+            className="rounded-xl px-4 py-3.5 flex items-center justify-between gap-3"
+            style={{
+              background: '#FFFBEB',
+              border: '1px solid #FDE68A',
+              borderLeft: '3px solid #F59E0B',
+              borderRadius: 'var(--radius-lg)',
+            }}
           >
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <PenLine size={14} style={{ color: 'rgba(255,255,255,0.85)' }} />
-                  <p className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.85)' }}>
-                    小テスト
-                  </p>
-                </div>
-                <p className="text-xl font-bold text-white">
-                  {totalCards}枚から出題
-                </p>
-                <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.75)' }}>
-                  10問 • 4択 • 即時採点
+            <div className="flex items-center gap-3 min-w-0">
+              <div
+                className="shrink-0 w-8 h-8 flex items-center justify-center"
+                style={{ background: '#FEF3C7', borderRadius: 'var(--radius-md)' }}
+              >
+                <PenLine size={14} style={{ color: '#D97706' }} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold leading-tight" style={{ color: '#92400E' }}>小テスト</p>
+                <p className="text-xs mt-0.5" style={{ color: '#B45309' }}>
+                  {totalCards}枚から出題 • 10問 • 4択
                 </p>
               </div>
-              <Link
-                href="/quiz"
-                className="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-lg transition-opacity hover:opacity-90 shrink-0"
-                style={{ background: 'white', color: '#D97706', borderRadius: 'var(--radius-md)' }}
-              >
-                テストを始める
-                <ArrowRight size={14} />
-              </Link>
             </div>
+            <Link
+              href="/quiz"
+              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 shrink-0 transition-opacity hover:opacity-80"
+              style={{ background: '#F59E0B', color: 'white', borderRadius: 'var(--radius-md)' }}
+            >
+              開始
+              <ArrowRight size={12} />
+            </Link>
           </div>
         )}
 
