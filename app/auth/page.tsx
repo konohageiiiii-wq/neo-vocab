@@ -26,8 +26,9 @@ export default function AuthPage() {
   const error = isSignIn ? signInState.error : signUpState.error
   const successMessage = !isSignIn ? signUpState.message : null
 
-  // URL パラメータ（OAuth コールバックからのエラー）または Google アクションのエラー
+  // URL パラメータ（OAuth コールバックからのエラー・確認完了）または Google アクションのエラー
   const urlError = searchParams.get('error')
+  const urlConfirmed = searchParams.get('confirmed') === 'true'
   const googleError = googleState.error ?? (urlError ? OAUTH_ERROR_MESSAGES[urlError] ?? 'ログインに失敗しました。' : null)
 
   return (
@@ -248,6 +249,22 @@ export default function AuthPage() {
             <span className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--lc-text-muted)' }}>or</span>
             <div className="flex-1 h-px" style={{ background: 'var(--lc-border)' }} />
           </div>
+
+          {/* メール確認完了メッセージ */}
+          {urlConfirmed && (
+            <div
+              className="flex items-start gap-3 text-sm px-4 py-4 mb-6"
+              style={{
+                color: 'var(--lc-success)',
+                background: 'var(--lc-success-light)',
+                border: '1px solid #6EE7B7',
+                borderRadius: 'var(--radius-lg)',
+              }}
+            >
+              <MailCheck size={18} className="shrink-0 mt-0.5" />
+              <p>メールアドレスの確認が完了しました。ログインしてください。</p>
+            </div>
+          )}
 
           {/* 登録完了メッセージ（確認メール送信後） */}
           {successMessage && (

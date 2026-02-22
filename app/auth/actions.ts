@@ -43,7 +43,10 @@ export async function signIn(_prevState: { error: string | null }, formData: For
   const { error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
-    console.error('[signIn]', error.message)
+    // "Email not confirmed" の場合はより分かりやすいメッセージを表示
+    if (error.message.toLowerCase().includes('email not confirmed')) {
+      return { error: 'メールアドレスの確認が完了していません。確認メールのリンクをクリックしてからログインしてください。' }
+    }
     return { error: 'メールアドレスまたはパスワードが正しくありません。' }
   }
 

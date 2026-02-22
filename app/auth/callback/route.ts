@@ -15,10 +15,15 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = await createClient()
-  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+  const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
   if (exchangeError) {
     return NextResponse.redirect(`${origin}/auth?error=oauth_failed`)
+  }
+
+  // メール確認フロー（セッションなし）→ ログイン画面へ案内
+  if (!data.session) {
+    return NextResponse.redirect(`${origin}/auth?confirmed=true`)
   }
 
   return NextResponse.redirect(`${origin}/dashboard`)
