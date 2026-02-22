@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/app/auth/actions'
 import {
   Flame, ArrowRight, Plus, BookOpen,
-  RotateCcw, CheckCircle2, Layers, Brain, TrendingUp, TrendingDown, Settings,
+  RotateCcw, CheckCircle2, Layers, Brain, TrendingUp, TrendingDown, Settings, PenLine,
 } from 'lucide-react'
 
 function formatTimeUntil(iso: string): string {
@@ -556,6 +556,39 @@ export default async function DashboardPage() {
               accentColor="var(--lc-accent)"
               trend={weekTrend}
             />
+          </div>
+        )}
+
+        {/* ─── 小テスト ─── */}
+        {totalCards >= 4 && (
+          <div
+            className="rounded-xl px-6 py-5"
+            style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)' }}
+          >
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <PenLine size={14} style={{ color: 'rgba(255,255,255,0.85)' }} />
+                  <p className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                    小テスト
+                  </p>
+                </div>
+                <p className="text-xl font-bold text-white">
+                  {totalCards}枚から出題
+                </p>
+                <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                  10問 • 4択 • 即時採点
+                </p>
+              </div>
+              <Link
+                href="/quiz"
+                className="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-lg transition-opacity hover:opacity-90 shrink-0"
+                style={{ background: 'white', color: '#D97706', borderRadius: 'var(--radius-md)' }}
+              >
+                テストを始める
+                <ArrowRight size={14} />
+              </Link>
+            </div>
           </div>
         )}
 
