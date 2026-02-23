@@ -58,6 +58,13 @@ export default async function LandingPage() {
           <span className="text-white font-bold text-lg tracking-tight">NeoVocab</span>
           <div className="flex items-center gap-3">
             <Link
+              href="/blog"
+              className="text-sm font-medium px-4 py-2 transition-colors"
+              style={{ color: DARK_MUTED }}
+            >
+              ブログ
+            </Link>
+            <Link
               href="/auth"
               className="text-sm font-medium px-4 py-2 transition-colors"
               style={{ color: DARK_MUTED }}
