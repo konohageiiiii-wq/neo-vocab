@@ -26,13 +26,13 @@ export const metadata: Metadata = {
     siteName: 'NeoVocab',
     locale: 'ja_JP',
     type: 'website',
-    images: [{ url: `${SITE_URL}/opengraph-image`, width: 1200, height: 630 }],
+    images: [{ url: `${SITE_URL}/og.png`, width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'NeoVocab — AI×間隔反復で語学学習',
     description: 'AIが例文・画像を自動生成。SM-2で効率学習。完全無料。',
-    images: [`${SITE_URL}/opengraph-image`],
+    images: [`${SITE_URL}/og.png`],
   },
   verification: {
     google: 'ABJHkp0aGNGnUIc7kHrQMcY0bNWpUMfJNe38BeY0p4o',
