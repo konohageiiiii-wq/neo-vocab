@@ -71,7 +71,16 @@ NEXT_PUBLIC_SITE_URL=   # OAuthコールバック用（本番URL）
 - ログイン済み: `/dashboard` へ自動リダイレクト
 - ダークヒーロー（`#0F172A`）+ CSS のみのカードモックアップ
 - メタデータ・OGP 設定済み
-- `/sitemap.xml` 自動生成済み
+- `/sitemap.xml` 自動生成済み（ブログ記事 URL 含む）
+
+#### ブログ（`/blog`）
+- MDX ファイルベース（`content/blog/*.mdx`）
+- `lib/blog.ts`: `getAllPosts()` / `getPostBySlug()` で記事読み込み
+- 一覧ページ（`/blog`）: 2カラムグリッド・サムネイル・タグ・抜粋
+- 詳細ページ（`/blog/[slug]`）: MDX レンダリング・末尾 CTA・OGP 設定
+- `/blog` は公開ページ（proxy.ts で保護なし）
+- `public/blog/` に記事サムネイル画像を配置
+- 1本目の記事: `01-eigo-tango-kakikata.mdx`（英単語の正しい覚え方）
 
 #### ダッシュボード（`/dashboard`）
 - ストリーク表示（`Flame` アイコン + amber、連続学習日数）
