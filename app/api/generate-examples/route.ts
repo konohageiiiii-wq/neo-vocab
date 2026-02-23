@@ -11,7 +11,7 @@ const LANGUAGE_NAME: Record<string, string> = {
 
 const VALID_LANGUAGES = ['en', 'es']
 
-const LIMIT_PER_MONTH = 300
+const LIMIT_PER_MONTH = 200
 
 export async function POST(request: Request) {
   // 認証チェック
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
   if ((monthRes.count ?? 0) >= LIMIT_PER_MONTH) {
     return NextResponse.json(
-      { error: '月間の例文生成上限（300回）に達しました。来月また試してください。' },
+      { error: '月間の例文生成上限（200回）に達しました。来月また試してください。' },
       { status: 429 }
     )
   }
