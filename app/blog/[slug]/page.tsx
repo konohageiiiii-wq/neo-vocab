@@ -47,8 +47,33 @@ export default async function BlogPostPage(
   const post = getPostBySlug(slug)
   if (!post) notFound()
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.date,
+    dateModified: post.date,
+    image: post.image ? `${SITE_URL}${post.image}` : undefined,
+    url: `${SITE_URL}/blog/${slug}`,
+    author: {
+      '@type': 'Organization',
+      name: 'NeoVocab',
+      url: SITE_URL,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'NeoVocab',
+      url: SITE_URL,
+    },
+  }
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--lc-bg)' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* Nav */}
       <nav style={{ background: DARK, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
