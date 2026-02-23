@@ -79,7 +79,7 @@ Return ONLY the image prompt in English. No explanation. Max 80 words.`
   let imagePrompt: string
   try {
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 150,
       messages: [{ role: 'user', content: claudePrompt }],
     })
